@@ -1,0 +1,36 @@
+@import "./tokens/colors.css";
+@import "./tokens/typography.css";
+@import "./tokens/spacing.css";
+@import "./tokens/radius.css";
+@import "./tokens/shadow.css";
+
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+html {
+	height: 100%;
+}
+
+body {
+	min-height: 100%;
+	font-family:
+		system-ui,
+		-apple-system,
+		"Segoe UI",
+		Roboto,
+		sans-serif;
+	line-height: 1.5;
+	color: #111;
+	background: #fafafa;
+}
+
+code {
+	font-family: ui-monospace, monospace;
+	font-size: 0.9em;
+	background: #eee;
+	padding: 0.1em 0.35em;
+	border-radius: 4px;
+}

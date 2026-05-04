@@ -1,0 +1,573 @@
+---
+description: CSS and styling rules
+globs: **/*.{css,scss,sass,vue}
+alwaysApply: false
+---
+
+## 1. Методология BEM
+
+### 1.1 Базовые принципы
+
+- **Block:** Независимый компонент (`.product-card`)
+- **Element:** Часть блока (`.product-card__title`)
+- **Modifier:** Модификатор состояния/внешнего вида (`.product-card--featured`)
+
+```scss
+// ✅ Хорошо
+.product-card {
+  &__image {
+    /* элемент */
+  }
+  &__title {
+    /* элемент */
+  }
+  &__price {
+    /* элемент */
+  }
+
+  &--featured {
+    /* модификатор */
+  }
+  &--out-of-stock {
+    /* модификатор */
+  }
+}
+
+// ❌ Плохо
+.product-card {
+  .image {
+    /* не BEM */
+  }
+  .title {
+    /* не BEM */
+  }
+
+  &.featured {
+    /* неправильный модификатор */
+  }
+}
+```
+
+### 1.2 Модификаторы
+
+```scss
+// ✅ Правильное использование модификаторов
+.button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 4px;
+
+  &--primary {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+  }
+
+  &--secondary {
+    background-color: var(--color-secondary);
+    color: var(--color-text);
+  }
+
+  &--disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &--small {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+}
+
+// HTML использование
+<button class="button button--primary button--small">Кнопка</button>
+```
+
+## 2. Структура и организация
+
+### 2.1 Порядок свойств
+
+```scss
+// ✅ Логические группы свойств
+.modal {
+  // Позиционирование
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+
+  // Блочная модель
+  display: flex;
+  flex-direction: column;
+  width: 90vw;
+  max-width: 600px;
+  height: 80vh;
+  padding: 24px;
+  margin: 0 auto;
+
+  // Типография
+  font-family: var(--font-primary);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-text);
+
+  // Визуальные эффекты
+  background-color: var(--color-white);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+
+  // Анимации
+  transition: opacity 0.3s ease;
+
+  // Прочее
+  cursor: default;
+}
+```
+
+### 2.2 Вложенность (максимум 3 уровня)
+
+```scss
+// ✅ Хорошо - 3 уровня вложенности
+.product-list {
+  &__item {
+    margin-bottom: 20px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .product-card {
+      &__image {
+        // ...
+      }
+    }
+  }
+}
+
+// ❌ Плохо - слишком глубокая вложенность
+.product-list {
+  &__item {
+    .product-card {
+      &__header {
+        .title {
+          .text {
+            // Слишком глубоко!
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+## 3. Переменные и токены
+
+### 3.1 CSS Custom Properties
+
+```scss
+// tokens.scss
+:root {
+  // Цвета
+  --color-primary: #007bff;
+  --color-primary-dark: #0056b3;
+  --color-secondary: #6c757d;
+  --color-success: #28a745;
+  --color-danger: #dc3545;
+  --color-warning: #ffc107;
+
+  --color-white: #ffffff;
+  --color-gray-100: #f8f9fa;
+  --color-gray-200: #e9ecef;
+  --color-gray-800: #343a40;
+  --color-black: #000000;
+
+  // Типография
+  --font-primary: 'Inter', -apple-system, sans-serif;
+  --font-secondary: 'Georgia', serif;
+
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-loose: 1.75;
+
+  // Breakpoints
+  --bp-xs: 360px;
+  --bp-sm: 480px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1366px;
+  --bp-xxl: 1920px;
+
+  // Пространство
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  // Тени
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+
+  // Анимации
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+}
+```
+
+### 3.2 Использование переменных
+
+```scss
+.button {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  padding: var(--space-md) var(--space-lg);
+  font-size: var(--font-size-base);
+  border-radius: 4px;
+  transition: background-color var(--transition-fast);
+
+  &:hover {
+    background-color: var(--color-primary-dark);
+  }
+
+  @media (max-width: var(--bp-md)) {
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--font-size-sm);
+  }
+}
+```
+
+## 4. Responsive Design (Desktop-first)
+
+### 4.1 Media Queries
+
+```scss
+// ✅ Desktop-first подход
+.hero-section {
+  padding: 80px 0;
+  font-size: 18px;
+
+  // Ноутбуки
+  @media (max-width: var(--bp-xl)) {
+    padding: 60px 0;
+  }
+
+  // Планшеты
+  @media (max-width: var(--bp-lg)) {
+    padding: 40px 0;
+    font-size: 16px;
+  }
+
+  // Телефоны
+  @media (max-width: var(--bp-md)) {
+    padding: 20px 0;
+    font-size: 14px;
+  }
+}
+```
+
+### 4.2 Утилитарные классы для responsive
+
+```scss
+// Responsive утилиты
+.visible-md {
+  @media (max-width: var(--bp-lg)) and (min-width: var(--bp-md)) {
+    display: block !important;
+  }
+
+  @media (max-width: var(--bp-md)) {
+    display: none !important;
+  }
+}
+
+.hidden-on-mobile {
+  @media (max-width: var(--bp-md)) {
+    display: none !important;
+  }
+}
+```
+
+## 5. SCSS особенности
+
+### 5.1 Миксины
+
+```scss
+// Миксины для повторяющихся паттернов
+@mixin flex-center($direction: row) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin text-ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Использование
+.card {
+  @include flex-center(column);
+
+  &__title {
+    @include text-ellipsis;
+  }
+}
+
+.sr-only {
+  @include visually-hidden;
+}
+```
+
+### 5.2 Функции
+
+```scss
+// Утилитарные функции
+@function em($pixels, $context: 16px) {
+  @return calc($pixels / $context) * 1em;
+}
+
+@function rem($pixels) {
+  @return calc($pixels / 16) * 1rem;
+}
+
+// Использование
+.heading {
+  font-size: rem(24px); // 1.5rem
+  margin-bottom: em(20px, 24px); // 0.833em
+}
+```
+
+## 6. Производительность и лучшие практики
+
+### 6.1 Оптимизация
+
+```scss
+// ✅ Хорошо - эффективные селекторы
+.nav-list {
+  &__item {
+    /* стили для item */
+  }
+}
+
+// ❌ Плохо - неэффективные селекторы
+div.container > ul.nav > li.item > a.link {
+  /* слишком специфично */
+}
+
+// ✅ Хорошо - избегаем избыточных свойств
+.element {
+  // Вместо этого:
+  // margin: 0;
+  // margin-top: 10px;
+
+  // Пишем так:
+  margin: 10px 0 0 0;
+}
+```
+
+### 6.2 Доступность
+
+```scss
+// Focus styles
+.button {
+  // ... базовые стилы
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+// Reduced motion
+.animation {
+  transition: transform var(--transition-normal);
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+```
+
+## 7. Структура файлов
+
+```
+styles/
+├── base/
+│   ├── _reset.scss       # Сброс стилей
+│   ├── _typography.scss  # Типография
+│   └── _variables.scss   # CSS переменные
+├── components/
+│   ├── _buttons.scss     # Кнопки
+│   ├── _forms.scss       # Формы
+│   └── _cards.scss       # Карточки
+├── layout/
+│   ├── _grid.scss        # Сетка
+│   ├── _header.scss      # Шапка
+│   └── _footer.scss      # Подвал
+├── utils/
+│   ├── _helpers.scss     # Хелперы
+│   └── _responsive.scss  # Responsive утилиты
+└── main.scss             # Главный файл
+```
+
+### 7.1 Пример main.scss
+
+```scss
+// Base
+@import 'base/reset';
+@import 'base/variables';
+@import 'base/typography';
+
+// Layout
+@import 'layout/grid';
+@import 'layout/header';
+@import 'layout/footer';
+
+// Components
+@import 'components/buttons';
+@import 'components/forms';
+@import 'components/cards';
+
+// Utils
+@import 'utils/helpers';
+@import 'utils/responsive';
+```
+
+## 8. Полный пример компонента
+
+```scss
+// components/_product-card.scss
+.product-card {
+  // Позиционирование
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  // Блочная модель
+  width: 100%;
+  padding: var(--space-lg);
+  margin-bottom: var(--space-md);
+
+  // Типография
+  font-family: var(--font-primary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  color: var(--color-gray-800);
+
+  // Визуальные эффекты
+  background-color: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-fast);
+
+  // Анимации
+  &:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  // Элементы
+  &__image {
+    width: 100%;
+    height: 200px;
+    margin-bottom: var(--space-md);
+    object-fit: cover;
+    border-radius: 4px;
+  }
+
+  &__title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    margin-bottom: var(--space-sm);
+    color: var(--color-black);
+
+    @include text-ellipsis;
+  }
+
+  &__description {
+    margin-bottom: var(--space-md);
+    color: var(--color-gray-600);
+    flex-grow: 1;
+  }
+
+  &__price {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: var(--space-lg);
+  }
+
+  &__actions {
+    @include flex-center;
+    gap: var(--space-sm);
+  }
+
+  // Модификаторы
+  &--featured {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-lg);
+  }
+
+  &--out-of-stock {
+    opacity: 0.6;
+
+    .product-card__price {
+      color: var(--color-secondary);
+    }
+  }
+
+  // Responsive
+  @media (max-width: var(--bp-lg)) {
+    padding: var(--space-md);
+
+    &__image {
+      height: 160px;
+    }
+  }
+
+  @media (max-width: var(--bp-md)) {
+    flex-direction: row;
+    gap: var(--space-md);
+
+    &__image {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 0;
+    }
+
+    &__content {
+      flex: 1;
+    }
+  }
+
+  @media (max-width: var(--bp-sm)) {
+    flex-direction: column;
+
+    &__image {
+      width: 100%;
+      height: 160px;
+    }
+  }
+}
+```

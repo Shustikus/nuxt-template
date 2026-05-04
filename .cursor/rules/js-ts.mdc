@@ -1,0 +1,1137 @@
+---
+description: JavaScript and TypeScript coding rules
+globs: **/*.{js,ts,mjs,cjs,cts,mts,vue}
+alwaysApply: false
+---
+
+## 1. Соглашения об именовании
+
+### 1.1 Основные правила
+
+| Объект                         | Стиль                        | Пример                               |
+| ------------------------------ | ---------------------------- | ------------------------------------ |
+| Переменные, функции, параметры | `camelCase`                  | `userProfile`, `fetchData()`         |
+| Классы, компоненты, интерфейсы | `PascalCase`                 | `UserService`, `ProductCard`         |
+| Константы (глобальные/env)     | `UPPER_SNAKE_CASE`           | `API_BASE_URL`, `MAX_RETRY_COUNT`    |
+| Приватные поля класса          | `camelCase` с `#`            | `#internalState`                     |
+| Типы, интерфейсы               | `PascalCase` (без префиксов) | `User`, `ApiResponse`                |
+| Enum                           | `PascalCase`                 | `UserRole`, `HttpStatus`             |
+| Boolean переменные             | is/has/can + что-то          | `isLoading`, `hasError`, `canSubmit` |
+| Event handlers                 | handle/on + действие         | `handleClick`, `onSubmit`            |
+
+> **Пояснение**: единообразие в именовании снижает когнитивную нагрузку и делает код предсказуемым. camelCase для переменных соответствует стандартам JavaScript, PascalCase для классов и типов - устоявшаяся практика ООП.
+
+### 1.2 Специфичные случаи
+
+**Boolean переменные:**
+
+```typescript
+// ✅ Хорошо
+const isLoading = true;
+const hasPermission = false;
+const canEdit = true;
+const isUserActive = true;
+
+// ❌ Плохо
+const load = true;
+const permission = false;
+const edit = true;
+```
+
+**Функции-предикаты:**
+
+```typescript
+// ✅ Хорошо
+const isValidEmail = (email: string): boolean => {
+  return email.includes('@');
+};
+
+const shouldUpdate = (oldData: Data, newData: Data): boolean => {
+  return oldData.timestamp < newData.timestamp;
+};
+
+// ❌ Плохо - неясно что возвращает функция
+const validateEmail = (email: string): boolean => {
+  return email.includes('@');
+};
+```
+
+**События и обработчики:**
+
+```typescript
+// ✅ Хорошо
+const handleClick = (event: MouseEvent) => {
+  /* ... */
+};
+const onFormSubmit = (data: FormData) => {
+  /* ... */
+};
+const emitUserUpdated = (user: User) => {
+  /* ... */
+};
+
+// ❌ Плохо
+const clickHandler = (event: MouseEvent) => {
+  /* ... */
+};
+const submitForm = (data: FormData) => {
+  /* ... */
+};
+```
+
+---
+
+## 2. Синтаксис и форматирование
+
+### 2.1 Стрелочные функции
+
+**Предпочтительны для коротких функций и колбэков:**
+
+```typescript
+// ✅ Хорошо
+const numbers = [1, 2, 3];
+const doubled = numbers.map(n => n * 2);
+
+const fetchUser = async (id: number): Promise<User> => {
+  const response = await api.get(`/users/${id}`);
+  return response.data;
+};
+
+// ❌ Избыточно для простых операций
+const doubled = numbers.map(n => {
+  return n * 2;
+});
+```
+
+> **Пояснение**: стрелочные функции автоматически привязывают контекст `this` и делают код более лаконичным. Используйте их для колбэков и методов, не требующих собственного контекста.
+
+**Function Declaration для именованных функций:**
+
+```typescript
+// ✅ Хорошо - для функций верхнего уровня с hoisting
+function calculateTotal(price: number, quantity: number): number {
+  return price * quantity;
+}
+
+// ✅ Также допустимо - для постоянных функций
+const calculateTotal = (price: number, quantity: number): number => {
+  return price * quantity;
+};
+```
+
+### 2.2 Интерфейсы vs Type Aliases
+
+**Используем интерфейсы для объектов:**
+
+```typescript
+// ✅ Хорошо - интерфейсы для объектов
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+interface UserCreateDto {
+  name: string;
+  email: string;
+  password: string;
+}
+
+// ✅ Type aliases для union types и сложных типов
+type UserRole = 'admin' | 'user' | 'moderator';
+type ApiResponse<T> = {
+  data: T;
+  status: number;
+  message?: string;
+};
+
+type Result<T, E = Error> = { success: true; data: T } | { success: false; error: E };
+```
+
+> **Пояснение**: интерфейсы лучше подходят для объектов, так как поддерживают расширение и слияние деклараций. Type aliases предпочтительны для union types, mapped types и условных типов.
+
+### 2.3 Классы и модификаторы доступа
+
+```typescript
+// ✅ Хорошо
+class UserService {
+  // Публичные поля
+  public readonly baseUrl: string;
+
+  // Приватные поля
+  private cache = new Map<string, User>();
+  #internalToken: string; // truly private (ES2022)
+
+  constructor(baseUrl: string) {
+    this.baseUrl = baseUrl;
+    this.#internalToken = '';
+  }
+
+  // Публичные методы
+  public async getUser(id: number): Promise<User> {
+    const cached = this.cache.get(id.toString());
+    if (cached) return cached;
+
+    return this.fetchUser(id);
+  }
+
+  // Приватные методы
+  private async fetchUser(id: number): Promise<User> {
+    const response = await fetch(`${this.baseUrl}/users/${id}`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch user: ${response.status}`);
+    }
+
+    const user = await response.json();
+    this.cache.set(id.toString(), user);
+    return user;
+  }
+
+  // Защищенные методы (для наследования)
+  protected validateUser(user: User): boolean {
+    return !!user.email && !!user.name;
+  }
+}
+```
+
+> **Пояснение**: инкапсуляция через модификаторы доступа защищает внутреннее состояние и позволяет безопасно изменять реализацию. `#private` обеспечивает истинную приватность на уровне JavaScript runtime.
+
+---
+
+## 3. Обработка ошибок
+
+### 3.1 Async/Await с try/catch
+
+```typescript
+// ✅ Хорошо - конкретная обработка ошибок
+class UserApi {
+  async getUser(id: number): Promise<User> {
+    try {
+      const response = await fetch(`/api/users/${id}`);
+
+      if (!response.ok) {
+        throw new ApiError(`HTTP ${response.status}`, response.status);
+      }
+
+      return await response.json();
+    } catch (error) {
+      if (error instanceof ApiError) {
+        console.error(`API Error: ${error.message}`);
+        throw error;
+      }
+
+      console.error('Network error:', error);
+      throw new NetworkError('Failed to fetch user');
+    }
+  }
+}
+
+// ✅ Создание кастомных классов ошибок
+class ApiError extends Error {
+  constructor(
+    message: string,
+    public readonly statusCode: number,
+    public readonly code?: string,
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
+class NetworkError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'NetworkError';
+  }
+}
+```
+
+> **Пояснение**: кастомные классы ошибок позволяют различать типы ошибок и обрабатывать их по-разному. Всегда устанавливайте `name` для правильного отображения в стеке вызовов.
+
+### 3.2 Result Pattern для предсказуемой обработки
+
+```typescript
+// ✅ Альтернативный подход - Result pattern
+type Result<T, E = Error> = { success: true; data: T } | { success: false; error: E };
+
+class UserService {
+  async getUserSafe(id: number): Promise<Result<User, ApiError>> {
+    try {
+      const user = await this.getUser(id);
+      return { success: true, data: user };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof ApiError ? error : new ApiError('Unknown error', 500),
+      };
+    }
+  }
+}
+
+// Использование
+const result = await userService.getUserSafe(123);
+if (result.success) {
+  console.log('User:', result.data);
+} else {
+  console.error('Error:', result.error.message);
+}
+```
+
+> **Пояснение**: Result Pattern делает обработку ошибок явной и заставляет проверять результат перед использованием. Это особенно полезно для критичных операций, где ошибка не должна прерывать выполнение.
+
+---
+
+## 4. Структура проекта (Vanilla JS/TS)
+
+### 4.1 Базовая структура
+
+```
+src/
+├── components/          # Переиспользуемые UI компоненты
+│   ├── ui/             # Базовые компоненты (Button, Input, Modal)
+│   ├── forms/          # Специфичные компоненты форм
+│   └── layout/         # Компоненты layout (Header, Sidebar)
+├── modules/            # Бизнес-модули приложения
+│   ├── auth/           # Модуль авторизации
+│   │   ├── index.ts    # Публичный API модуля
+│   │   ├── types.ts    # Типы модуля
+│   │   ├── api.ts      # API вызовы
+│   │   └── components/ # Компоненты модуля
+│   ├── catalog/        # Модуль каталога
+│   └── cart/           # Модуль корзины
+├── services/           # Внешние API и сервисы
+│   ├── api-client.ts   # Базовый HTTP клиент
+│   ├── user-service.ts
+│   └── product-service.ts
+├── utils/              # Вспомогательные функции
+│   ├── helpers.ts      # Общие утилиты
+│   ├── formatters.ts   # Форматирование данных
+│   └── validators.ts   # Валидация
+├── types/              # Глобальные TypeScript типы
+│   ├── api.ts          # Типы API
+│   ├── common.ts       # Общие типы
+│   └── index.ts        # Реэкспорт
+├── styles/             # Глобальные стили
+│   ├── base.scss       # Базовые стили
+│   ├── variables.scss  # CSS переменные
+│   └── mixins.scss     # SCSS миксины
+└── main.ts             # Точка входа
+```
+
+> **Пояснение**: модульная структура группирует код по функциональности, а не по типу файлов. Это упрощает навигацию и позволяет легко удалять или переносить целые модули.
+
+### 4.2 Модульная архитектура
+
+**Определение типов модуля:**
+
+```typescript
+// modules/catalog/types.ts
+export interface Product {
+  id: number;
+  name: string;
+  price: number;
+  category: string;
+}
+
+export interface CatalogState {
+  products: Product[];
+  loading: boolean;
+  error: string | null;
+  filters: ProductFilters;
+}
+
+export interface ProductFilters {
+  category?: string;
+  priceRange?: { min: number; max: number };
+  searchQuery?: string;
+}
+```
+
+**API слой модуля:**
+
+```typescript
+// modules/catalog/api.ts
+import { Product, ProductFilters } from './types';
+
+export class CatalogApi {
+  private baseUrl = '/api';
+
+  async getProducts(filters?: ProductFilters): Promise<Product[]> {
+    const params = new URLSearchParams();
+
+    if (filters?.category) {
+      params.append('category', filters.category);
+    }
+    if (filters?.searchQuery) {
+      params.append('search', filters.searchQuery);
+    }
+    if (filters?.priceRange) {
+      params.append('minPrice', filters.priceRange.min.toString());
+      params.append('maxPrice', filters.priceRange.max.toString());
+    }
+
+    const response = await fetch(`${this.baseUrl}/products?${params}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch products');
+    }
+
+    return response.json();
+  }
+
+  async getProduct(id: number): Promise<Product> {
+    const response = await fetch(`${this.baseUrl}/products/${id}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch product');
+    }
+
+    return response.json();
+  }
+}
+```
+
+**Основной класс модуля:**
+
+```typescript
+// modules/catalog/index.ts
+import { CatalogApi } from './api';
+import { CatalogState, Product, ProductFilters } from './types';
+
+export class CatalogModule {
+  private state: CatalogState = {
+    products: [],
+    loading: false,
+    error: null,
+    filters: {},
+  };
+
+  private api: CatalogApi;
+  private container: HTMLElement;
+
+  constructor(container: HTMLElement) {
+    this.container = container;
+    this.api = new CatalogApi();
+    this.init();
+  }
+
+  private init(): void {
+    this.render();
+    this.loadProducts();
+  }
+
+  async loadProducts(filters?: ProductFilters): Promise<void> {
+    this.setState({ loading: true, error: null });
+
+    try {
+      const products = await this.api.getProducts(filters);
+      this.setState({ products, loading: false });
+    } catch (error) {
+      this.setState({
+        error: error instanceof Error ? error.message : 'Unknown error',
+        loading: false,
+      });
+    }
+  }
+
+  private setState(updates: Partial<CatalogState>): void {
+    this.state = { ...this.state, ...updates };
+    this.render();
+  }
+
+  private render(): void {
+    if (this.state.loading) {
+      this.container.innerHTML = '<div class="loading">Loading...</div>';
+    } else if (this.state.error) {
+      this.container.innerHTML = `<div class="error">${this.state.error}</div>`;
+    } else {
+      this.container.innerHTML = this.renderProducts();
+    }
+  }
+
+  private renderProducts(): string {
+    return `
+      <div class="catalog">
+        ${this.state.products
+          .map(
+            product => `
+          <div class="product-card" data-id="${product.id}">
+            <h3>${product.name}</h3>
+            <p class="price">$${product.price}</p>
+            <button class="add-to-cart">Add to Cart</button>
+          </div>
+        `,
+          )
+          .join('')}
+      </div>
+    `;
+  }
+}
+```
+
+> **Пояснение**: каждый модуль - это самодостаточная единица с собственным состоянием, API и UI. Это позволяет разрабатывать и тестировать модули изолированно.
+
+---
+
+## 5. Тестирование с MSW
+
+### 5.1 Конфигурация моков
+
+```typescript
+// mocks/handlers.ts
+import { http, HttpResponse } from 'msw';
+
+export const handlers = [
+  // GET /api/users
+  http.get('/api/users', () => {
+    return HttpResponse.json([
+      {
+        id: 1,
+        name: 'John Doe',
+        email: 'john@example.com',
+        role: 'user',
+      },
+      {
+        id: 2,
+        name: 'Jane Smith',
+        email: 'jane@example.com',
+        role: 'admin',
+      },
+    ]);
+  }),
+
+  // GET /api/users/:id с динамическим параметром
+  http.get('/api/users/:id', async ({ params }) => {
+    const { id } = params;
+
+    // Имитация задержки сети
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    return HttpResponse.json({
+      id: Number(id),
+      name: `User ${id}`,
+      email: `user${id}@example.com`,
+      role: 'user',
+    });
+  }),
+
+  // POST /api/users с валидацией
+  http.post('/api/users', async ({ request }) => {
+    const newUser = (await request.json()) as any;
+
+    // Валидация данных
+    if (!newUser.name || !newUser.email) {
+      return HttpResponse.json({ error: 'Name and email are required' }, { status: 400 });
+    }
+
+    return HttpResponse.json(
+      { ...newUser, id: Date.now(), createdAt: new Date().toISOString() },
+      { status: 201 },
+    );
+  }),
+
+  // Обработка ошибок
+  http.get('/api/error', () => {
+    return HttpResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }),
+
+  // DELETE /api/users/:id
+  http.delete('/api/users/:id', ({ params }) => {
+    return HttpResponse.json({ message: `User ${params.id} deleted` }, { status: 200 });
+  }),
+];
+```
+
+**Настройка для браузера:**
+
+```typescript
+// mocks/browser.ts
+import { setupWorker } from 'msw/browser';
+import { handlers } from './handlers';
+
+export const worker = setupWorker(...handlers);
+```
+
+**Настройка для Node.js (тесты):**
+
+```typescript
+// mocks/server.ts
+import { setupServer } from 'msw/node';
+import { handlers } from './handlers';
+
+export const server = setupServer(...handlers);
+```
+
+> **Пояснение**: MSW (Mock Service Worker) перехватывает сетевые запросы на уровне Service Worker, позволяя тестировать без изменения кода приложения. Моки работают как в браузере, так и в тестах.
+
+### 5.2 Интеграция с приложением
+
+```typescript
+// main.ts
+async function bootstrapApplication() {
+  // В development режиме запускаем MSW
+  if (process.env.NODE_ENV === 'development') {
+    const { worker } = await import('./mocks/browser');
+    await worker.start({
+      onUnhandledRequest: 'bypass', // Пропускать не замоканные запросы
+      serviceWorker: {
+        url: '/mockServiceWorker.js',
+      },
+    });
+    console.log('🔶 MSW enabled');
+  }
+
+  // Инициализация приложения
+  const app = new App();
+  app.init();
+}
+
+bootstrapApplication().catch(console.error);
+```
+
+### 5.3 Тестирование с MSW
+
+```typescript
+// tests/user-service.test.ts
+import { describe, it, expect, beforeAll, afterEach, afterAll } from 'vitest';
+import { server } from '../mocks/server';
+import { http, HttpResponse } from 'msw';
+import { UserService } from '../services/user-service';
+
+describe('UserService', () => {
+  const userService = new UserService();
+
+  // Запуск MSW перед всеми тестами
+  beforeAll(() => server.listen());
+
+  // Сброс handlers после каждого теста
+  afterEach(() => server.resetHandlers());
+
+  // Остановка MSW после всех тестов
+  afterAll(() => server.close());
+
+  it('should fetch users successfully', async () => {
+    const users = await userService.getUsers();
+
+    expect(users).toHaveLength(2);
+    expect(users[0].name).toBe('John Doe');
+    expect(users[0].email).toBe('john@example.com');
+  });
+
+  it('should handle API errors', async () => {
+    // Переопределяем handler для конкретного теста
+    server.use(
+      http.get('/api/users', () => {
+        return HttpResponse.json({ error: 'Service unavailable' }, { status: 503 });
+      }),
+    );
+
+    await expect(userService.getUsers()).rejects.toThrow('Service unavailable');
+  });
+
+  it('should create user with valid data', async () => {
+    const newUser = {
+      name: 'Test User',
+      email: 'test@example.com',
+    };
+
+    const createdUser = await userService.createUser(newUser);
+
+    expect(createdUser.id).toBeDefined();
+    expect(createdUser.name).toBe(newUser.name);
+    expect(createdUser.email).toBe(newUser.email);
+  });
+
+  it('should reject invalid user data', async () => {
+    const invalidUser = { name: '', email: '' };
+
+    await expect(userService.createUser(invalidUser)).rejects.toThrow(
+      'Name and email are required',
+    );
+  });
+
+  it('should delete user', async () => {
+    const result = await userService.deleteUser(1);
+
+    expect(result.message).toContain('deleted');
+  });
+});
+```
+
+> **Пояснение**: MSW позволяет тестировать реальные HTTP-запросы без моков fetch/axios. Тесты получаются ближе к реальному сценарию использования и легче поддерживаются.
+
+---
+
+## 6. Best Practices
+
+### 6.1 Иммутабельность
+
+```typescript
+// ✅ Хорошо - создание новых объектов
+const updateUser = (users: User[], updatedUser: User): User[] => {
+  return users.map(user => (user.id === updatedUser.id ? updatedUser : user));
+};
+
+const addProduct = (cart: CartItem[], product: Product): CartItem[] => {
+  return [...cart, { ...product, quantity: 1 }];
+};
+
+const removeProduct = (cart: CartItem[], productId: number): CartItem[] => {
+  return cart.filter(item => item.id !== productId);
+};
+
+// ❌ Плохо - мутация исходных данных
+const updateUser = (users: User[], updatedUser: User): void => {
+  const user = users.find(u => u.id === updatedUser.id);
+  if (user) {
+    Object.assign(user, updatedUser); // Мутация!
+  }
+};
+
+const addProduct = (cart: CartItem[], product: Product): void => {
+  cart.push({ ...product, quantity: 1 }); // Мутация!
+};
+```
+
+> **Пояснение**: иммутабельность предотвращает неожиданные изменения данных и упрощает отладку. Новые объекты явно показывают где происходят изменения и позволяют легко откатывать состояние.
+
+### 6.2 Деструктуризация
+
+```typescript
+// ✅ Хорошо - деструктуризация параметров
+function UserProfile({ user, onUpdate, isLoading }: UserProfileProps) {
+  const { name, email, avatar } = user;
+
+  return `
+    <div class="user-profile">
+      <img src="${avatar}" alt="${name}" />
+      <h2>${name}</h2>
+      <p>${email}</p>
+      ${isLoading ? '<span>Updating...</span>' : ''}
+    </div>
+  `;
+}
+
+// ✅ Деструктуризация с значениями по умолчанию
+function createUser({ name, email, role = 'user', active = true }: CreateUserDto): User {
+  return {
+    id: Date.now(),
+    name,
+    email,
+    role,
+    active,
+    createdAt: new Date(),
+  };
+}
+
+// ✅ Деструктуризация массивов
+const [first, second, ...rest] = numbers;
+const [error, setError] = useState<string | null>(null);
+
+// ❌ Плохо - многократное обращение к свойствам
+function UserProfile(props: UserProfileProps) {
+  return `
+    <div>
+      <h2>${props.user.name}</h2>
+      <p>${props.user.email}</p>
+    </div>
+  `;
+}
+```
+
+> **Пояснение**: деструктуризация делает код компактнее и яснее показывает какие именно свойства используются. Это особенно полезно для объектов с множеством полей.
+
+### 6.3 Опциональная цепочка и нулевое слияние
+
+```typescript
+// ✅ Хорошо - опциональная цепочка
+const userName = user?.profile?.name ?? 'Anonymous';
+const apiUrl = config?.api?.baseUrl ?? 'http://localhost:3000';
+const itemCount = cart?.items?.length ?? 0;
+
+// ✅ Безопасный вызов методов
+const result = obj?.method?.();
+const value = array?.[0]?.property;
+
+// ✅ Нулевое слияние для значений по умолчанию
+const port = process.env.PORT ?? 3000;
+const timeout = options.timeout ?? 5000;
+
+// ❌ Плохо - многословно и менее читаемо
+const userName =
+  user && user.profile && user.profile.name ? user.profile.name : 'Anonymous';
+
+// ❌ Проблема с falsy значениями
+const port = process.env.PORT || 3000; // 0 будет заменен на 3000!
+const timeout = options.timeout || 5000; // 0 будет заменен на 5000!
+```
+
+> **Пояснение**: `?.` безопасно обращается к свойствам, которые могут не существовать. `??` проверяет именно null/undefined, не затрагивая другие falsy значения (0, '', false).
+
+### 6.4 Async/Await вместо Promise chains
+
+```typescript
+// ✅ Хорошо - последовательные операции
+async function processUser(id: number): Promise<void> {
+  const user = await fetchUser(id);
+  const profile = await fetchProfile(user.profileId);
+  const settings = await fetchSettings(profile.settingsId);
+
+  await updateUI(user, profile, settings);
+}
+
+// ✅ Параллельные операции
+async function loadDashboard(): Promise<Dashboard> {
+  const [user, stats, notifications] = await Promise.all([
+    fetchUser(),
+    fetchStats(),
+    fetchNotifications(),
+  ]);
+
+  return { user, stats, notifications };
+}
+
+// ❌ Плохо - Promise chains менее читаемы
+function processUser(id: number): Promise<void> {
+  return fetchUser(id)
+    .then(user => fetchProfile(user.profileId))
+    .then(profile => fetchSettings(profile.settingsId))
+    .then(settings => updateUI(settings));
+}
+```
+
+### 6.5 Типизация и type guards
+
+```typescript
+// ✅ Хорошо - type guards для проверки типов
+function isApiError(error: unknown): error is ApiError {
+  return error instanceof ApiError;
+}
+
+function isUser(data: unknown): data is User {
+  return typeof data === 'object' && data !== null && 'id' in data && 'email' in data;
+}
+
+// Использование
+try {
+  await someApiCall();
+} catch (error) {
+  if (isApiError(error)) {
+    console.error(`API Error ${error.statusCode}: ${error.message}`);
+  } else {
+    console.error('Unknown error:', error);
+  }
+}
+
+// ✅ Discriminated unions
+type LoadingState = { status: 'loading' };
+type SuccessState<T> = { status: 'success'; data: T };
+type ErrorState = { status: 'error'; error: string };
+
+type AsyncState<T> = LoadingState | SuccessState<T> | ErrorState;
+
+function renderState<T>(state: AsyncState<T>): string {
+  switch (state.status) {
+    case 'loading':
+      return '<div>Loading...</div>';
+    case 'success':
+      return `<div>${state.data}</div>`;
+    case 'error':
+      return `<div class="error">${state.error}</div>`;
+  }
+}
+```
+
+---
+
+## ❌ 7. Частые ошибки и как их избегать
+
+### 7.1 Забытая обработка ошибок
+
+```typescript
+// ❌ Плохо
+async function loadData() {
+  const data = await fetch('/api/data');
+  return data.json();
+}
+
+// ✅ Хорошо
+async function loadData(): Promise<Data> {
+  try {
+    const response = await fetch('/api/data');
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to load data:', error);
+    throw error;
+  }
+}
+```
+
+### 7.2 Мутация параметров функции
+
+```typescript
+// ❌ Плохо
+function addItem(items: Item[], newItem: Item): Item[] {
+  items.push(newItem); // Мутация!
+  return items;
+}
+
+// ✅ Хорошо
+function addItem(items: Item[], newItem: Item): Item[] {
+  return [...items, newItem];
+}
+```
+
+### 7.3 Неправильная проверка на null/undefined
+
+```typescript
+// ❌ Плохо - проверяет все falsy значения
+if (!value) {
+  // 0, '', false тоже попадут сюда!
+}
+
+// ✅ Хорошо - явная проверка
+if (value === null || value === undefined) {
+  // Только null и undefined
+}
+
+// ✅ Или используйте опциональную цепочку
+const name = user?.name ?? 'Default';
+```
+
+### 7.4 Забытый return в arrow functions
+
+```typescript
+// ❌ Плохо - забыли return
+const doubled = numbers.map(n => {
+  n * 2; // Вернёт undefined!
+});
+
+// ✅ Хорошо - явный return
+const doubled = numbers.map(n => {
+  return n * 2;
+});
+
+// ✅ Или неявный return
+const doubled = numbers.map(n => n * 2);
+```
+
+### 7.5 Неправильное использование async/await
+
+```typescript
+// ❌ Плохо - лишние await в цикле
+async function loadUsers(ids: number[]): Promise<User[]> {
+  const users: User[] = [];
+  for (const id of ids) {
+    users.push(await fetchUser(id)); // Последовательно!
+  }
+  return users;
+}
+
+// ✅ Хорошо - параллельная загрузка
+async function loadUsers(ids: number[]): Promise<User[]> {
+  return Promise.all(ids.map(id => fetchUser(id)));
+}
+```
+
+### 7.6 Игнорирование типов TypeScript
+
+```typescript
+// ❌ Плохо
+const data = response.data as any;
+// @ts-ignore
+const result = someFunction();
+
+// ✅ Хорошо - правильная типизация
+interface ApiResponse {
+  data: User[];
+  total: number;
+}
+
+const response = await fetch<ApiResponse>('/api/users');
+const data = response.data; // TypeScript знает тип
+```
+
+### 7.7 Неправильная работа с массивами
+
+```typescript
+// ❌ Плохо - изменение оригинального массива
+const sortedItems = items.sort((a, b) => a.price - b.price);
+
+// ✅ Хорошо - создание копии
+const sortedItems = [...items].sort((a, b) => a.price - b.price);
+
+// ❌ Плохо - использование индекса для удаления
+items.splice(index, 1);
+
+// ✅ Хорошо - filter создаёт новый массив
+const newItems = items.filter((_, i) => i !== index);
+// Или по условию
+const newItems = items.filter(item => item.id !== targetId);
+```
+
+### 7.8 Забытая очистка ресурсов
+
+```typescript
+// ❌ Плохо - утечка памяти
+function setupListener() {
+  window.addEventListener('resize', handleResize);
+}
+
+// ✅ Хорошо - очистка при необходимости
+function setupListener() {
+  window.addEventListener('resize', handleResize);
+
+  return () => {
+    window.removeEventListener('resize', handleResize);
+  };
+}
+
+// Использование
+const cleanup = setupListener();
+// Когда компонент удаляется
+cleanup();
+```
+
+### 7.9 Неоптимальные условные выражения
+
+```typescript
+// ❌ Плохо
+if (user.role === 'admin' || user.role === 'moderator' || user.role === 'superadmin') {
+  // ...
+}
+
+// ✅ Хорошо
+const privilegedRoles = ['admin', 'moderator', 'superadmin'] as const;
+if (privilegedRoles.includes(user.role)) {
+  // ...
+}
+
+// ❌ Плохо - вложенные тернарные операторы
+const message = user
+  ? user.isActive
+    ? user.isPremium
+      ? 'Premium Active User'
+      : 'Active User'
+    : 'Inactive User'
+  : 'Guest';
+
+// ✅ Хорошо - явная функция или switch
+function getUserMessage(user: User | null): string {
+  if (!user) return 'Guest';
+  if (!user.isActive) return 'Inactive User';
+  if (user.isPremium) return 'Premium Active User';
+  return 'Active User';
+}
+```
+
+---
+
+## 8. Code Review Checklist
+
+### Общее
+
+- [ ] Код следует соглашению о именовании
+- [ ] Нет закомментированного кода
+- [ ] Нет `console.log` в production коде
+- [ ] Нет TODO/FIXME без контекста
+- [ ] Все импорты используются
+- [ ] Нет дублирования кода (DRY)
+
+### TypeScript
+
+- [ ] Нет типа `any` (используйте `unknown` если нужно)
+- [ ] Нет `@ts-ignore` без комментария-обоснования
+- [ ] Все функции имеют явные типы возвращаемых значений
+- [ ] Интерфейсы и типы корректно экспортированы
+- [ ] Используются строгие настройки TypeScript
+
+### Производительность
+
+- [ ] Нет лишних await в циклах (используйте `Promise.all`)
+- [ ] Тяжелые операции вынесены в отдельные функции
+- [ ] Нет мутаций массивов (используйте иммутабельные методы)
+- [ ] Используется деструктуризация где уместно
+
+### Обработка ошибок
+
+- [ ] Async функции обернуты в try/catch
+- [ ] Ошибки логируются с контекстом
+- [ ] Используются кастомные классы ошибок
+- [ ] API ошибки правильно обрабатываются
+
+### Тестирование
+
+- [ ] Критичная бизнес-логика покрыта тестами
+- [ ] API слой имеет интеграционные тесты с MSW
+- [ ] Тесты проходят локально
+- [ ] Нет хрупких тестов с зависимостью от времени/порядка
+
+### Архитектура
+
+- [ ] Модули имеют четкую структуру (types, api, index)
+- [ ] Публичный API модуля экспортируется через index.ts
+- [ ] Нет циклических зависимостей
+- [ ] Бизнес-логика отделена от UI
+
+### Безопасность
+
+- [ ] Нет API ключей в коде
+- [ ] Пользовательский ввод валидируется
+- [ ] Нет eval() или innerHTML с пользовательскими данными
+- [ ] Sensitive данные не логируются
+
+### Документация
+
+- [ ] Сложные функции имеют JSDoc комментарии
+- [ ] README обновлён если нужно
+- [ ] Public API документирован
+- [ ] Breaking changes указаны
+
+---
+
+## 9. Быстрые команды для проверки
+
+```bash
+# Проверка типов
+npm run type-check
+# или
+tsc --noEmit
+
+# Линтинг
+npm run lint
+
+# Форматирование
+npm run format
+
+# Тесты
+npm run test
+
+# Build проверка
+npm run build
+```
+
+---
+
+## 📚 10. Полезные ссылки
+
+### Документация
+
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+- [MDN JavaScript Reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+- [MSW Documentation](https://mswjs.io/)
+
+### Инструменты
+
+- [TypeScript Playground](https://www.typescriptlang.org/play)
+- [ESLint Rules](https://eslint.org/docs/rules/)
+- [Prettier](https://prettier.io/)
+
+### Best Practices
+
+- [Clean Code JavaScript](https://github.com/ryanmcdermott/clean-code-javascript)
+- [TypeScript Deep Dive](https://basarat.gitbook.io/typescript/)
+- [JavaScript Design Patterns](https://www.patterns.dev/)
