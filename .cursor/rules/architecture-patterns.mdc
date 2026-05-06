@@ -1,0 +1,518 @@
+# Паттерны разработки
+
+Этот документ описывает повторно используемые паттерны и шаблоны, которые мы применяем в проектах.  
+Паттерны помогают решать типичные задачи единообразно, уменьшая когнитивную нагрузку и ускоряя разработку.
+
+**Цель:** стандартизировать подходы к решению распространенных проблем в разработке.
+
+---
+
+## 1. Архитектурные паттерны
+
+### 1.1 Feature-Sliced Design (FSD)
+
+**Проблема:** Как организовать код в крупном приложении, чтобы его можно было легко масштабировать и поддерживать?
+
+**Решение:** Структура по бизнес-возможностям (фичам), а не по техническим слоям.
+
+```
+src/
+├── app/           # Инициализация приложения
+├── processes/     # Сложные бизнес-процессы
+├── pages/         # Компоновка страниц
+├── features/      # Бизнес-фичи
+├── entities/      # Бизнес-сущности
+├── shared/        # Переиспользуемый код
+└── index.ts       # Публичный API
+```
+
+**Правила:**
+
+- Модули могут зависеть только от слоев ниже
+- Каждый слой имеет четкий публичный API
+- Запрещены циклические зависимости
+
+### 1.2 Service Layer
+
+**Проблема:** Как изолировать логику работы с API от компонентов?
+
+**Решение:** Создаем слой сервисов, который инкапсулирует все взаимодействие с внешними API.
+
+```typescript
+// services/user-service.ts
+export const userService = {
+  async getProfile(userId: number): Promise<User> {
+    const dto = await api.get(`/users/${userId}`);
+    return mapUserDto(dto);
+  },
+
+  async updateProfile(userId: number, data: UserUpdate): Promise<User> {
+    const dto = await api.patch(`/users/${userId}`, data);
+    return mapUserDto(dto);
+  },
+};
+
+// В компоненте
+const user = await userService.getProfile(123);
+```
+
+### 1.3 Repository Pattern
+
+**Проблема:** Как абстрагироваться от конкретного источника данных?
+
+**Решение:** Создаем репозитории, которые скрывают детали работы с разными источниками данных.
+
+```typescript
+// repositories/user-repository.ts
+export interface UserRepository {
+  findById(id: number): Promise<User | null>;
+  save(user: User): Promise<void>;
+  delete(id: number): Promise<void>;
+}
+
+// Реализация для REST API
+export class ApiUserRepository implements UserRepository {
+  async findById(id: number): Promise<User | null> {
+    const response = await fetch(`/api/users/${id}`);
+    return response.json();
+  }
+}
+
+// Реализация для LocalStorage
+export class LocalUserRepository implements UserRepository {
+  async findById(id: number): Promise<User | null> {
+    const data = localStorage.getItem(`user_${id}`);
+    return data ? JSON.parse(data) : null;
+  }
+}
+```
+
+---
+
+## 2. Паттерны производительности
+
+### 2.1 Lazy Loading
+
+**Проблема:** Как уменьшить начальный размер бандла?
+
+**Решение:** Динамический импорт компонентов и модулей.
+
+```typescript
+// Ленивая загрузка компонента
+const LazyComponent = defineAsyncComponent(() => import('./LazyComponent.vue'));
+
+// Ленивая загрузка модуля
+const heavyModule = await import('./heavy-module.ts');
+```
+
+### 2.2 Virtual Scrolling
+
+**Проблема:** Как отображать большие списки без падения производительности?
+
+**Решение:** Рендерить только видимые элементы.
+
+```vue
+<template>
+  <VirtualList :items="largeList" :item-height="50">
+    <template #default="{ item }">
+      <ListItem :item="item" />
+    </template>
+  </VirtualList>
+</template>
+```
+
+### 2.3 Memoization
+
+**Проблема:** Как избежать лишних вычислений в computed свойствах и функциях?
+
+**Решение:** Кеширование результатов тяжелых вычислений.
+
+```typescript
+import { memoize } from 'lodash-es';
+
+// Мемоизация функции
+const expensiveCalculation = memoize((data: largeDataSet) => {
+  return data.filter(/* heavy logic */);
+});
+
+// В композабле
+const result = computed(() => expensiveCalculation(largeData.value));
+```
+
+---
+
+## 3. Паттерны компонентов
+
+### 3.1 Compound Components
+
+**Проблема:** Как создавать гибкие компоненты со сложной структурой?
+
+**Решение:** Группа компонентов, которые работают вместе, но сохраняют гибкость.
+
+```vue
+<!-- Использование -->
+<DataTable>
+  <DataTableHeader>
+    <DataTableColumn name="id" label="ID" />
+    <DataTableColumn name="name" label="Name" />
+  </DataTableHeader>
+  <DataTableBody :items="users" />
+</DataTable>
+
+<!-- Реализация -->
+<!-- DataTable.vue -->
+<template>
+  <div class="data-table">
+    <slot />
+  </div>
+</template>
+
+<!-- DataTableHeader.vue -->
+<template>
+  <thead>
+    <tr>
+      <slot />
+    </tr>
+  </thead>
+</template>
+```
+
+### 3.2 Render Props / Scoped Slots
+
+**Проблема:** Как переиспользовать логику с разным представлением?
+
+**Решение:** Компонент предоставляет данные через scoped slots.
+
+```vue
+<!-- DataProvider.vue -->
+<template>
+  <slot :data="data" :loading="loading" :error="error" />
+</template>
+
+<script setup>
+const { data, loading, error } = useFetch('/api/data');
+</script>
+
+<!-- Использование -->
+<DataProvider v-slot="{ data, loading }">
+  <div v-if="loading">Loading...</div>
+  <UserList v-else :users="data" />
+</DataProvider>
+```
+
+### 3.3 Provider/Inject Pattern
+
+**Проблема:** Как передавать данные глубоко в иерархию компонентов без props drilling?
+
+**Решение:** Использование provide/inject для сквозных данных.
+
+```typescript
+// provider-component.vue
+<script setup>
+import { provide } from 'vue'
+
+const theme = ref('dark')
+const toggleTheme = () => { /* ... */ }
+
+provide('theme', {
+  theme,
+  toggleTheme
+})
+</script>
+
+// consumer-component.vue
+<script setup>
+import { inject } from 'vue'
+
+const { theme, toggleTheme } = inject('theme')
+</script>
+```
+
+---
+
+## 4. Паттерны управления состоянием
+
+### 4.1 State Machine
+
+**Проблема:** Как управлять сложной логикой состояний с четкими переходами?
+
+**Решение:** Использование конечных автоматов.
+
+```typescript
+// machines/form-machine.ts
+export const formMachine = createMachine({
+  id: 'form',
+  initial: 'idle',
+  states: {
+    idle: {
+      on: { SUBMIT: 'submitting' },
+    },
+    submitting: {
+      on: {
+        SUCCESS: 'success',
+        ERROR: 'error',
+      },
+    },
+    success: { type: 'final' },
+    error: {
+      on: { RETRY: 'submitting' },
+    },
+  },
+});
+
+// Использование
+const [state, send] = useMachine(formMachine);
+
+if (state.value.matches('submitting')) {
+  // Показать спиннер
+}
+```
+
+### 4.2 Observer Pattern
+
+**Проблема:** Как уведомлять multiple компонентов об изменениях?
+
+**Решение:** Паттерн Наблюдатель через кастомные события или реактивные системы.
+
+```typescript
+// event-bus.ts
+class EventBus {
+  private listeners: Map<string, Function[]> = new Map();
+
+  on(event: string, callback: Function) {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, []);
+    }
+    this.listeners.get(event)!.push(callback);
+  }
+
+  emit(event: string, data?: any) {
+    this.listeners.get(event)?.forEach(callback => callback(data));
+  }
+}
+
+export const eventBus = new EventBus();
+```
+
+---
+
+## 5. Паттерны работы с данными
+
+### 5.1 Data Mapper
+
+**Проблема:** Как преобразовывать данные между разными форматами (API ↔ Frontend)?
+
+**Решение:** Функции маппинга для каждого преобразования.
+
+```typescript
+// mappers/user-mapper.ts
+interface ApiUser {
+  id: number;
+  full_name: string;
+  created_at: string;
+}
+
+interface AppUser {
+  id: number;
+  fullName: string;
+  createdAt: Date;
+}
+
+export const mapUserFromApi = (apiUser: ApiUser): AppUser => ({
+  id: apiUser.id,
+  fullName: apiUser.full_name,
+  createdAt: new Date(apiUser.created_at),
+});
+
+export const mapUserToApi = (appUser: AppUser): ApiUser => ({
+  id: appUser.id,
+  full_name: appUser.fullName,
+  created_at: appUser.createdAt.toISOString(),
+});
+```
+
+### 5.2 Factory Pattern
+
+**Проблема:** Как создавать сложные объекты с разными вариациями?
+
+**Решение:** Фабричные функции для создания объектов.
+
+```typescript
+// factories/notification-factory.ts
+export interface Notification {
+  type: 'success' | 'error' | 'warning';
+  message: string;
+  duration: number;
+}
+
+export const notificationFactory = {
+  success(message: string): Notification {
+    return { type: 'success', message, duration: 3000 };
+  },
+
+  error(message: string): Notification {
+    return { type: 'error', message, duration: 5000 };
+  },
+
+  warning(message: string): Notification {
+    return { type: 'warning', message, duration: 4000 };
+  },
+};
+
+// Использование
+const notification = notificationFactory.success('Operation completed!');
+```
+
+---
+
+## 6. Паттерны тестирования
+
+### 6.1 Test Data Builder
+
+**Проблема:** Как создавать тестовые данные без дублирования кода?
+
+**Решение:** Билдеры для создания тестовых объектов.
+
+```typescript
+// tests/builders/user-builder.ts
+export class UserBuilder {
+  private user: Partial<User> = {
+    id: 1,
+    name: 'Test User',
+    email: 'test@example.com',
+  };
+
+  withId(id: number): UserBuilder {
+    this.user.id = id;
+    return this;
+  }
+
+  withName(name: string): UserBuilder {
+    this.user.name = name;
+    return this;
+  }
+
+  build(): User {
+    return this.user as User;
+  }
+}
+
+// Использование в тестах
+const user = new UserBuilder().withName('John').withId(123).build();
+```
+
+### 6.2 Page Object Pattern
+
+**Проблема:** Как сделать UI-тесты устойчивыми к изменениям в верстке?
+
+**Решение:** Объекты страниц, инкапсулирующие селекторы и действия.
+
+```typescript
+// tests/pages/login-page.ts
+export class LoginPage {
+  get emailInput() {
+    return cy.get('[data-testid="email-input"]');
+  }
+  get passwordInput() {
+    return cy.get('[data-testid="password-input"]');
+  }
+  get submitButton() {
+    return cy.get('[data-testid="submit-button"]');
+  }
+
+  login(email: string, password: string) {
+    this.emailInput.type(email);
+    this.passwordInput.type(password);
+    this.submitButton.click();
+  }
+}
+
+// В тесте
+const loginPage = new LoginPage();
+loginPage.login('user@example.com', 'password');
+```
+
+---
+
+## 7. Паттерны безопасности
+
+### 7.1 Sanitization
+
+**Проблема:** Как безопасно отображать пользовательский контент?
+
+**Решение:** Санитизация HTML перед отображением.
+
+```typescript
+// utils/sanitizer.ts
+import DOMPurify from 'dompurify';
+
+export const sanitizeHtml = (dirtyHtml: string): string => {
+  return DOMPurify.sanitize(dirtyHtml, {
+    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a'],
+    ALLOWED_ATTR: ['href', 'target'],
+  });
+};
+
+// В компоненте
+const safeHtml = sanitizeHtml(userContent);
+```
+
+### 7.2 Rate Limiting
+
+**Проблема:** Как предотвратить злоупотребление API?
+
+**Решение:** Ограничение частоты запросов.
+
+```typescript
+// utils/rate-limiter.ts
+export class RateLimiter {
+  private requests = new Map<string, number[]>();
+
+  isAllowed(key: string, limit: number, windowMs: number): boolean {
+    const now = Date.now();
+    const windowStart = now - windowMs;
+
+    const timestamps = this.requests.get(key) || [];
+    const recentRequests = timestamps.filter(time => time > windowStart);
+
+    if (recentRequests.length >= limit) {
+      return false;
+    }
+
+    recentRequests.push(now);
+    this.requests.set(key, recentRequests);
+    return true;
+  }
+}
+```
+
+---
+
+## 8. Конвенции именования
+
+### 8.1 Файлы и директории
+
+- **Компоненты:** `PascalCase` (`UserProfile.vue`)
+- **Композаблы:** `camelCase` (`useUserAuth.ts`)
+- **Сервисы:** `camelCase` (`userService.ts`)
+- **Типы:** `PascalCase` (`User.ts`)
+
+### 8.2 Переменные и функции
+
+- **Boolean:** `isLoading`, `hasError`, `canEdit`
+- **Events:** `user-updated`, `form-submitted`
+- **Actions:** `fetchUser`, `updateProfile`
+
+---
+
+## Когда какой паттерн использовать?
+
+| Проблема                          | Паттерн                     |
+| --------------------------------- | --------------------------- |
+| Сложная бизнес-логика             | State Machine               |
+| Много переиспользуемой логики     | Custom Hooks / Composables  |
+| Глубокая иерархия компонентов     | Provider/Inject             |
+| Разные представления одних данных | Render Props / Scoped Slots |
+| Работа с внешними API             | Service Layer + Data Mapper |
+| Большие списки                    | Virtual Scrolling           |
+| Частые тяжелые вычисления         | Memoization                 |
