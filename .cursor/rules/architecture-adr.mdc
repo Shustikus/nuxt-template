@@ -1,3 +1,7 @@
+---
+alwaysApply: true
+---
+
 # Архитектурные решения (ADR)
 
 Этот документ фиксирует ключевые архитектурные решения, принципы и ограничения для наших проектов.  
@@ -16,7 +20,8 @@
 
 ### **1.1. Композиция важнее наследования**
 
-**Что это значит:** Собираем функциональность из небольших независимых частей вместо построения глубоких иерархий классов.
+**Что это значит:** Собираем функциональность из небольших независимых частей вместо построения глубоких иерархий
+классов.
 
 **Почему выбираем композицию:**
 
@@ -33,12 +38,12 @@ class UserService extends BaseService implements ICacheable, ILoggable {}
 
 // Используем композицию:
 const userService = {
-  ...baseService,
-  ...caching,
-  ...logging,
-  getUser() {
-    /* логика */
-  },
+	...baseService,
+	...caching,
+	...logging,
+	getUser() {
+		/* логика */
+	},
 };
 ```
 
@@ -162,23 +167,23 @@ src/
 ```typescript
 // DTO (Data Transfer Object) - что приходит с бекенда
 interface ApiUser {
-  id: number;
-  full_name: string;
-  created_at: string;
+	id: number;
+	full_name: string;
+	created_at: string;
 }
 
 // Domain Model - что использует фронтенд
 interface User {
-  id: number;
-  name: string;
-  createdAt: Date;
+	id: number;
+	name: string;
+	createdAt: Date;
 }
 
 // Mapping function
 const mapUser = (dto: ApiUser): User => ({
-  id: dto.id,
-  name: dto.full_name, // camelCase вместо snake_case
-  createdAt: new Date(dto.created_at), // Date вместо string
+	id: dto.id,
+	name: dto.full_name, // camelCase вместо snake_case
+	createdAt: new Date(dto.created_at), // Date вместо string
 });
 ```
 
@@ -211,18 +216,25 @@ const mapUser = (dto: ApiUser): User => ({
 ```vue
 <!-- Dumb компонент -->
 <template>
-  <button :disabled="disabled" @click="$emit('click')">
-    {{ label }}
-  </button>
+	<button
+		:disabled="disabled"
+		@click="$emit('click')"
+	>
+		{{ label }}
+	</button>
 </template>
 
 <!-- Smart компонент -->
 <template>
-  <SubmitButton :disabled="isLoading" :label="submitLabel" @click="handleSubmit" />
+	<SubmitButton
+		:disabled="isLoading"
+		:label="submitLabel"
+		@click="handleSubmit"
+	/>
 </template>
 <script setup>
 const { isLoading, submit } = usePayment();
-const submitLabel = computed(() => (isLoading.value ? 'Processing...' : 'Pay Now'));
+const submitLabel = computed(() => (isLoading.value ? "Processing..." : "Pay Now"));
 </script>
 ```
 

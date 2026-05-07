@@ -15,14 +15,14 @@ alwaysApply: false
 ```html
 <!-- ✅ Хорошо -->
 <header class="page-header">
-  <nav class="main-nav">...</nav>
+	<nav class="main-nav">...</nav>
 </header>
 
 <main class="page-main">
-  <article class="blog-post">
-    <h1>Заголовок статьи</h1>
-    <section class="post-content">...</section>
-  </article>
+	<article class="blog-post">
+		<h1>Заголовок статьи</h1>
+		<section class="post-content">...</section>
+	</article>
 </main>
 
 <aside class="sidebar">...</aside>
@@ -31,14 +31,14 @@ alwaysApply: false
 
 <!-- ❌ Плохо -->
 <div class="header">
-  <div class="nav">...</div>
+	<div class="nav">...</div>
 </div>
 
 <div class="main">
-  <div class="post">
-    <div class="title">Заголовок статьи</div>
-    <div class="content">...</div>
-  </div>
+	<div class="post">
+		<div class="title">Заголовок статьи</div>
+		<div class="content">...</div>
+	</div>
 </div>
 ```
 
@@ -47,22 +47,28 @@ alwaysApply: false
 ```html
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Заголовок страницы</title>
-    <meta name="description" content="Описание страницы для SEO" />
-  </head>
-  <body>
-    <header class="page-header">...</header>
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Заголовок страницы</title>
+		<meta
+			name="description"
+			content="Описание страницы для SEO"
+		/>
+	</head>
+	<body>
+		<header class="page-header">...</header>
 
-    <main class="page-main">
-      <h1>Основной заголовок страницы</h1>
-      <!-- Контент -->
-    </main>
+		<main class="page-main">
+			<h1>Основной заголовок страницы</h1>
+			<!-- Контент -->
+		</main>
 
-    <footer class="page-footer">...</footer>
-  </body>
+		<footer class="page-footer">...</footer>
+	</body>
 </html>
 ```
 
@@ -74,23 +80,51 @@ alwaysApply: false
 
 ```html
 <!-- ✅ Хорошо -->
-<section class="user-profile" id="user-profile">
-  <form class="profile-form" id="profile-form">
-    <div class="form-group">
-      <label class="form-label" for="user-email">Email</label>
-      <input class="form-input" type="email" id="user-email" />
-    </div>
-  </form>
+<section
+	class="user-profile"
+	id="user-profile"
+>
+	<form
+		class="profile-form"
+		id="profile-form"
+	>
+		<div class="form-group">
+			<label
+				class="form-label"
+				for="user-email"
+				>Email</label
+			>
+			<input
+				class="form-input"
+				type="email"
+				id="user-email"
+			/>
+		</div>
+	</form>
 </section>
 
 <!-- ❌ Плохо -->
-<section class="userProfile" id="UserProfile">
-  <form class="profileForm" id="profile_form">
-    <div class="FormGroup">
-      <label class="formLabel" for="userEmail">Email</label>
-      <input class="formInput" type="email" id="userEmail" />
-    </div>
-  </form>
+<section
+	class="userProfile"
+	id="UserProfile"
+>
+	<form
+		class="profileForm"
+		id="profile_form"
+	>
+		<div class="FormGroup">
+			<label
+				class="formLabel"
+				for="userEmail"
+				>Email</label
+			>
+			<input
+				class="formInput"
+				type="email"
+				id="userEmail"
+			/>
+		</div>
+	</form>
 </section>
 ```
 
@@ -101,18 +135,18 @@ alwaysApply: false
 ```html
 <!-- ✅ Хорошо -->
 <nav aria-label="Основная навигация">
-  <ul>
-    <li><a href="/">Главная</a></li>
-    <li><a href="/about">О нас</a></li>
-  </ul>
+	<ul>
+		<li><a href="/">Главная</a></li>
+		<li><a href="/about">О нас</a></li>
+	</ul>
 </nav>
 
 <button aria-label="Закрыть меню">×</button>
 
 <!-- ❌ Плохо -->
 <div class="nav">
-  <div><a href="/">Главная</a></div>
-  <div><a href="/about">О нас</a></div>
+	<div><a href="/">Главная</a></div>
+	<div><a href="/about">О нас</a></div>
 </div>
 
 <div class="close-btn">×</div>
@@ -123,20 +157,34 @@ alwaysApply: false
 ```html
 <!-- ✅ Хорошо -->
 <form class="contact-form">
-  <div class="form-group">
-    <label for="user-name" class="form-label">Имя *</label>
-    <input
-      type="text"
-      id="user-name"
-      class="form-input"
-      required
-      aria-required="true"
-      aria-describedby="name-hint"
-    />
-    <div id="name-hint" class="form-hint">Введите ваше полное имя</div>
-  </div>
+	<div class="form-group">
+		<label
+			for="user-name"
+			class="form-label"
+			>Имя *</label
+		>
+		<input
+			type="text"
+			id="user-name"
+			class="form-input"
+			required
+			aria-required="true"
+			aria-describedby="name-hint"
+		/>
+		<div
+			id="name-hint"
+			class="form-hint"
+		>
+			Введите ваше полное имя
+		</div>
+	</div>
 
-  <button type="submit" class="submit-button">Отправить сообщение</button>
+	<button
+		type="submit"
+		class="submit-button"
+	>
+		Отправить сообщение
+	</button>
 </form>
 ```
 
@@ -147,38 +195,38 @@ alwaysApply: false
 ```html
 <!-- Современные форматы с fallback -->
 <picture class="responsive-image">
-  <source
-    type="image/avif"
-    srcset="image-320.avif 320w, image-640.avif 640w, image-1200.avif 1200w"
-    sizes="(max-width: 768px) 100vw, 50vw"
-  />
+	<source
+		type="image/avif"
+		srcset="image-320.avif 320w, image-640.avif 640w, image-1200.avif 1200w"
+		sizes="(max-width: 768px) 100vw, 50vw"
+	/>
 
-  <source
-    type="image/webp"
-    srcset="image-320.webp 320w, image-640.webp 640w, image-1200.webp 1200w"
-    sizes="(max-width: 768px) 100vw, 50vw"
-  />
+	<source
+		type="image/webp"
+		srcset="image-320.webp 320w, image-640.webp 640w, image-1200.webp 1200w"
+		sizes="(max-width: 768px) 100vw, 50vw"
+	/>
 
-  <img
-    src="image-640.jpg"
-    srcset="image-320.jpg 320w, image-640.jpg 640w, image-1200.jpg 1200w"
-    sizes="(max-width: 768px) 100vw, 50vw"
-    alt="Описание изображения"
-    loading="lazy"
-    width="640"
-    height="360"
-    class="responsive-image__img"
-  />
+	<img
+		src="image-640.jpg"
+		srcset="image-320.jpg 320w, image-640.jpg 640w, image-1200.jpg 1200w"
+		sizes="(max-width: 768px) 100vw, 50vw"
+		alt="Описание изображения"
+		loading="lazy"
+		width="640"
+		height="360"
+		class="responsive-image__img"
+	/>
 </picture>
 
 <!-- Простой вариант -->
 <img
-  src="photo.jpg"
-  alt="Описание фотографии"
-  loading="lazy"
-  width="800"
-  height="600"
-  class="content-image"
+	src="photo.jpg"
+	alt="Описание фотографии"
+	loading="lazy"
+	width="800"
+	height="600"
+	class="content-image"
 />
 ```
 
@@ -186,17 +234,38 @@ alwaysApply: false
 
 ```html
 <!-- SVG из спрайта -->
-<button class="icon-button" aria-label="Поиск">
-  <svg class="icon" width="20" height="20" aria-hidden="true">
-    <use href="/sprite.svg#search"></use>
-  </svg>
+<button
+	class="icon-button"
+	aria-label="Поиск"
+>
+	<svg
+		class="icon"
+		width="20"
+		height="20"
+		aria-hidden="true"
+	>
+		<use href="/sprite.svg#search"></use>
+	</svg>
 </button>
 
 <!-- Inline SVG для простых иконок -->
-<button class="close-button" aria-label="Закрыть">
-  <svg class="icon" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" />
-  </svg>
+<button
+	class="close-button"
+	aria-label="Закрыть"
+>
+	<svg
+		class="icon"
+		width="24"
+		height="24"
+		viewBox="0 0 24 24"
+		aria-hidden="true"
+	>
+		<path
+			d="M18 6L6 18M6 6l12 12"
+			stroke="currentColor"
+			stroke-width="2"
+		/>
+	</svg>
 </button>
 ```
 
@@ -207,20 +276,20 @@ alwaysApply: false
 ```html
 <!-- Изображения ниже fold -->
 <img
-  src="placeholder.jpg"
-  data-src="content-image.jpg"
-  alt="Описание"
-  loading="lazy"
-  class="lazy-image"
+	src="placeholder.jpg"
+	data-src="content-image.jpg"
+	alt="Описание"
+	loading="lazy"
+	class="lazy-image"
 />
 
 <!-- Iframe -->
 <iframe
-  src="about:blank"
-  data-src="https://www.youtube.com/embed/..."
-  loading="lazy"
-  title="Видео объяснение"
-  class="video-frame"
+	src="about:blank"
+	data-src="https://www.youtube.com/embed/..."
+	loading="lazy"
+	title="Видео объяснение"
+	class="video-frame"
 ></iframe>
 ```
 
@@ -228,10 +297,26 @@ alwaysApply: false
 
 ```html
 <!-- Preload критичных ресурсов -->
-<link rel="preload" href="critical-font.woff2" as="font" type="font/woff2" crossorigin />
-<link rel="preload" href="hero-image.webp" as="image" />
+<link
+	rel="preload"
+	href="critical-font.woff2"
+	as="font"
+	type="font/woff2"
+	crossorigin
+/>
+<link
+	rel="preload"
+	href="hero-image.webp"
+	as="image"
+/>
 
 <!-- Preconnect к важным доменам -->
-<link rel="preconnect" href="https://api.example.com" />
-<link rel="dns-prefetch" href="https://cdn.example.com" />
+<link
+	rel="preconnect"
+	href="https://api.example.com"
+/>
+<link
+	rel="dns-prefetch"
+	href="https://cdn.example.com"
+/>
 ```

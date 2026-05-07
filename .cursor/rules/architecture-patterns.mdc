@@ -1,3 +1,7 @@
+---
+alwaysApply: true
+---
+
 # Паттерны разработки
 
 Этот документ описывает повторно используемые паттерны и шаблоны, которые мы применяем в проектах.  
@@ -41,15 +45,15 @@ src/
 ```typescript
 // services/user-service.ts
 export const userService = {
-  async getProfile(userId: number): Promise<User> {
-    const dto = await api.get(`/users/${userId}`);
-    return mapUserDto(dto);
-  },
+	async getProfile(userId: number): Promise<User> {
+		const dto = await api.get(`/users/${userId}`);
+		return mapUserDto(dto);
+	},
 
-  async updateProfile(userId: number, data: UserUpdate): Promise<User> {
-    const dto = await api.patch(`/users/${userId}`, data);
-    return mapUserDto(dto);
-  },
+	async updateProfile(userId: number, data: UserUpdate): Promise<User> {
+		const dto = await api.patch(`/users/${userId}`, data);
+		return mapUserDto(dto);
+	},
 };
 
 // В компоненте
@@ -65,25 +69,25 @@ const user = await userService.getProfile(123);
 ```typescript
 // repositories/user-repository.ts
 export interface UserRepository {
-  findById(id: number): Promise<User | null>;
-  save(user: User): Promise<void>;
-  delete(id: number): Promise<void>;
+	findById(id: number): Promise<User | null>;
+	save(user: User): Promise<void>;
+	delete(id: number): Promise<void>;
 }
 
 // Реализация для REST API
 export class ApiUserRepository implements UserRepository {
-  async findById(id: number): Promise<User | null> {
-    const response = await fetch(`/api/users/${id}`);
-    return response.json();
-  }
+	async findById(id: number): Promise<User | null> {
+		const response = await fetch(`/api/users/${id}`);
+		return response.json();
+	}
 }
 
 // Реализация для LocalStorage
 export class LocalUserRepository implements UserRepository {
-  async findById(id: number): Promise<User | null> {
-    const data = localStorage.getItem(`user_${id}`);
-    return data ? JSON.parse(data) : null;
-  }
+	async findById(id: number): Promise<User | null> {
+		const data = localStorage.getItem(`user_${id}`);
+		return data ? JSON.parse(data) : null;
+	}
 }
 ```
 
@@ -99,10 +103,10 @@ export class LocalUserRepository implements UserRepository {
 
 ```typescript
 // Ленивая загрузка компонента
-const LazyComponent = defineAsyncComponent(() => import('./LazyComponent.vue'));
+const LazyComponent = defineAsyncComponent(() => import("./LazyComponent.vue"));
 
 // Ленивая загрузка модуля
-const heavyModule = await import('./heavy-module.ts');
+const heavyModule = await import("./heavy-module.ts");
 ```
 
 ### 2.2 Virtual Scrolling
@@ -113,11 +117,14 @@ const heavyModule = await import('./heavy-module.ts');
 
 ```vue
 <template>
-  <VirtualList :items="largeList" :item-height="50">
-    <template #default="{ item }">
-      <ListItem :item="item" />
-    </template>
-  </VirtualList>
+	<VirtualList
+		:items="largeList"
+		:item-height="50"
+	>
+		<template #default="{ item }">
+			<ListItem :item="item" />
+		</template>
+	</VirtualList>
 </template>
 ```
 
@@ -128,11 +135,11 @@ const heavyModule = await import('./heavy-module.ts');
 **Решение:** Кеширование результатов тяжелых вычислений.
 
 ```typescript
-import { memoize } from 'lodash-es';
+import { memoize } from "lodash-es";
 
 // Мемоизация функции
 const expensiveCalculation = memoize((data: largeDataSet) => {
-  return data.filter(/* heavy logic */);
+	return data.filter(/* heavy logic */);
 });
 
 // В композабле
@@ -162,18 +169,18 @@ const result = computed(() => expensiveCalculation(largeData.value));
 <!-- Реализация -->
 <!-- DataTable.vue -->
 <template>
-  <div class="data-table">
-    <slot />
-  </div>
+	<div class="data-table">
+		<slot />
+	</div>
 </template>
 
 <!-- DataTableHeader.vue -->
 <template>
-  <thead>
-    <tr>
-      <slot />
-    </tr>
-  </thead>
+	<thead>
+		<tr>
+			<slot />
+		</tr>
+	</thead>
 </template>
 ```
 
@@ -186,11 +193,15 @@ const result = computed(() => expensiveCalculation(largeData.value));
 ```vue
 <!-- DataProvider.vue -->
 <template>
-  <slot :data="data" :loading="loading" :error="error" />
+	<slot
+		:data="data"
+		:loading="loading"
+		:error="error"
+	/>
 </template>
 
 <script setup>
-const { data, loading, error } = useFetch('/api/data');
+const { data, loading, error } = useFetch("/api/data");
 </script>
 
 <!-- Использование -->
@@ -241,30 +252,21 @@ const { theme, toggleTheme } = inject('theme')
 ```typescript
 // machines/form-machine.ts
 export const formMachine = createMachine({
-  id: 'form',
-  initial: 'idle',
-  states: {
-    idle: {
-      on: { SUBMIT: 'submitting' },
-    },
-    submitting: {
-      on: {
-        SUCCESS: 'success',
-        ERROR: 'error',
-      },
-    },
-    success: { type: 'final' },
-    error: {
-      on: { RETRY: 'submitting' },
-    },
-  },
+	id: "form",
+	initial: "idle",
+	states: {
+		idle: { on: { SUBMIT: "submitting" } },
+		submitting: { on: { SUCCESS: "success", ERROR: "error" } },
+		success: { type: "final" },
+		error: { on: { RETRY: "submitting" } },
+	},
 });
 
 // Использование
 const [state, send] = useMachine(formMachine);
 
-if (state.value.matches('submitting')) {
-  // Показать спиннер
+if (state.value.matches("submitting")) {
+	// Показать спиннер
 }
 ```
 
@@ -277,18 +279,18 @@ if (state.value.matches('submitting')) {
 ```typescript
 // event-bus.ts
 class EventBus {
-  private listeners: Map<string, Function[]> = new Map();
+	private listeners: Map<string, Function[]> = new Map();
 
-  on(event: string, callback: Function) {
-    if (!this.listeners.has(event)) {
-      this.listeners.set(event, []);
-    }
-    this.listeners.get(event)!.push(callback);
-  }
+	on(event: string, callback: Function) {
+		if (!this.listeners.has(event)) {
+			this.listeners.set(event, []);
+		}
+		this.listeners.get(event)!.push(callback);
+	}
 
-  emit(event: string, data?: any) {
-    this.listeners.get(event)?.forEach(callback => callback(data));
-  }
+	emit(event: string, data?: any) {
+		this.listeners.get(event)?.forEach((callback) => callback(data));
+	}
 }
 
 export const eventBus = new EventBus();
@@ -307,27 +309,27 @@ export const eventBus = new EventBus();
 ```typescript
 // mappers/user-mapper.ts
 interface ApiUser {
-  id: number;
-  full_name: string;
-  created_at: string;
+	id: number;
+	full_name: string;
+	created_at: string;
 }
 
 interface AppUser {
-  id: number;
-  fullName: string;
-  createdAt: Date;
+	id: number;
+	fullName: string;
+	createdAt: Date;
 }
 
 export const mapUserFromApi = (apiUser: ApiUser): AppUser => ({
-  id: apiUser.id,
-  fullName: apiUser.full_name,
-  createdAt: new Date(apiUser.created_at),
+	id: apiUser.id,
+	fullName: apiUser.full_name,
+	createdAt: new Date(apiUser.created_at),
 });
 
 export const mapUserToApi = (appUser: AppUser): ApiUser => ({
-  id: appUser.id,
-  full_name: appUser.fullName,
-  created_at: appUser.createdAt.toISOString(),
+	id: appUser.id,
+	full_name: appUser.fullName,
+	created_at: appUser.createdAt.toISOString(),
 });
 ```
 
@@ -340,27 +342,27 @@ export const mapUserToApi = (appUser: AppUser): ApiUser => ({
 ```typescript
 // factories/notification-factory.ts
 export interface Notification {
-  type: 'success' | 'error' | 'warning';
-  message: string;
-  duration: number;
+	type: "success" | "error" | "warning";
+	message: string;
+	duration: number;
 }
 
 export const notificationFactory = {
-  success(message: string): Notification {
-    return { type: 'success', message, duration: 3000 };
-  },
+	success(message: string): Notification {
+		return { type: "success", message, duration: 3000 };
+	},
 
-  error(message: string): Notification {
-    return { type: 'error', message, duration: 5000 };
-  },
+	error(message: string): Notification {
+		return { type: "error", message, duration: 5000 };
+	},
 
-  warning(message: string): Notification {
-    return { type: 'warning', message, duration: 4000 };
-  },
+	warning(message: string): Notification {
+		return { type: "warning", message, duration: 4000 };
+	},
 };
 
 // Использование
-const notification = notificationFactory.success('Operation completed!');
+const notification = notificationFactory.success("Operation completed!");
 ```
 
 ---
@@ -376,29 +378,25 @@ const notification = notificationFactory.success('Operation completed!');
 ```typescript
 // tests/builders/user-builder.ts
 export class UserBuilder {
-  private user: Partial<User> = {
-    id: 1,
-    name: 'Test User',
-    email: 'test@example.com',
-  };
+	private user: Partial<User> = { id: 1, name: "Test User", email: "test@example.com" };
 
-  withId(id: number): UserBuilder {
-    this.user.id = id;
-    return this;
-  }
+	withId(id: number): UserBuilder {
+		this.user.id = id;
+		return this;
+	}
 
-  withName(name: string): UserBuilder {
-    this.user.name = name;
-    return this;
-  }
+	withName(name: string): UserBuilder {
+		this.user.name = name;
+		return this;
+	}
 
-  build(): User {
-    return this.user as User;
-  }
+	build(): User {
+		return this.user as User;
+	}
 }
 
 // Использование в тестах
-const user = new UserBuilder().withName('John').withId(123).build();
+const user = new UserBuilder().withName("John").withId(123).build();
 ```
 
 ### 6.2 Page Object Pattern
@@ -410,26 +408,26 @@ const user = new UserBuilder().withName('John').withId(123).build();
 ```typescript
 // tests/pages/login-page.ts
 export class LoginPage {
-  get emailInput() {
-    return cy.get('[data-testid="email-input"]');
-  }
-  get passwordInput() {
-    return cy.get('[data-testid="password-input"]');
-  }
-  get submitButton() {
-    return cy.get('[data-testid="submit-button"]');
-  }
+	get emailInput() {
+		return cy.get('[data-testid="email-input"]');
+	}
+	get passwordInput() {
+		return cy.get('[data-testid="password-input"]');
+	}
+	get submitButton() {
+		return cy.get('[data-testid="submit-button"]');
+	}
 
-  login(email: string, password: string) {
-    this.emailInput.type(email);
-    this.passwordInput.type(password);
-    this.submitButton.click();
-  }
+	login(email: string, password: string) {
+		this.emailInput.type(email);
+		this.passwordInput.type(password);
+		this.submitButton.click();
+	}
 }
 
 // В тесте
 const loginPage = new LoginPage();
-loginPage.login('user@example.com', 'password');
+loginPage.login("user@example.com", "password");
 ```
 
 ---
@@ -444,13 +442,13 @@ loginPage.login('user@example.com', 'password');
 
 ```typescript
 // utils/sanitizer.ts
-import DOMPurify from 'dompurify';
+import DOMPurify from "dompurify";
 
 export const sanitizeHtml = (dirtyHtml: string): string => {
-  return DOMPurify.sanitize(dirtyHtml, {
-    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a'],
-    ALLOWED_ATTR: ['href', 'target'],
-  });
+	return DOMPurify.sanitize(dirtyHtml, {
+		ALLOWED_TAGS: ["b", "i", "em", "strong", "a"],
+		ALLOWED_ATTR: ["href", "target"],
+	});
 };
 
 // В компоненте
@@ -466,23 +464,23 @@ const safeHtml = sanitizeHtml(userContent);
 ```typescript
 // utils/rate-limiter.ts
 export class RateLimiter {
-  private requests = new Map<string, number[]>();
+	private requests = new Map<string, number[]>();
 
-  isAllowed(key: string, limit: number, windowMs: number): boolean {
-    const now = Date.now();
-    const windowStart = now - windowMs;
+	isAllowed(key: string, limit: number, windowMs: number): boolean {
+		const now = Date.now();
+		const windowStart = now - windowMs;
 
-    const timestamps = this.requests.get(key) || [];
-    const recentRequests = timestamps.filter(time => time > windowStart);
+		const timestamps = this.requests.get(key) || [];
+		const recentRequests = timestamps.filter((time) => time > windowStart);
 
-    if (recentRequests.length >= limit) {
-      return false;
-    }
+		if (recentRequests.length >= limit) {
+			return false;
+		}
 
-    recentRequests.push(now);
-    this.requests.set(key, recentRequests);
-    return true;
-  }
+		recentRequests.push(now);
+		this.requests.set(key, recentRequests);
+		return true;
+	}
 }
 ```
 
