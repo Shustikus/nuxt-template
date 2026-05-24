@@ -9,7 +9,20 @@ import createVueTsConfig from "@vue/eslint-config-typescript";
 import vuePrettierEslintConfig from "@vue/eslint-config-prettier";
 
 export default [
-	{ ignores: [".output/**", ".nuxt/**", "node_modules/**", "dist/**", "coverage/**", "storybook-static/**"] },
+	{
+		ignores: [
+			".output/**",
+			".nuxt/**",
+			".nitro/**",
+			".data/**",
+			".cache/**",
+			"node_modules/**",
+			"dist/**",
+			"storybook-static/**",
+			"coverage/**",
+			".cursor/**",
+		],
+	},
 	...pluginVue.configs["flat/recommended"],
 	...createVueTsConfig(),
 	vuePrettierEslintConfig,

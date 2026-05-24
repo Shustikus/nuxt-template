@@ -5,6 +5,9 @@ build/
 coverage/
 .output/
 .nuxt/
+.nitro/
+.data/
+.cache/
 storybook-static/
 package-lock.json
 *.min.js
@@ -14,3 +17,4 @@ package-lock.json
 .env.local
 .DS_Store
 *.log
+.cursor/
