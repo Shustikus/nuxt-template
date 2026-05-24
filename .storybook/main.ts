@@ -11,6 +11,8 @@ const storybookDir = dirname(fileURLToPath(import.meta.url));
  * @see https://storybook.js.org/docs/configure
  */
 const config: StorybookConfig = {
+	core: { disableTelemetry: true },
+
 	stories: ["../app/**/*.mdx", "../app/**/*.stories.@(js|ts)"],
 
 	addons: ["@storybook/addon-docs", "@storybook/addon-links", "@storybook/addon-a11y", "@storybook/addon-vitest"],
