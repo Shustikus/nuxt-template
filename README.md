@@ -162,3 +162,4 @@ npm run ci
 - [Nuxt](https://nuxt.com/docs) · [Vue](https://vuejs.org/guide/introduction.html) · [Vitest](https://vitest.dev/guide/)
 - [Storybook Vue 3 + Vite](https://storybook.js.org/docs/get-started/frameworks/vue3-vite)
 - [MSW](https://mswjs.io/) · [Icônes](https://icones.js.org/)
+- [google-webfonts-helper](https://gwfh.mranftl.com/fonts)
