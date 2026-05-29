@@ -141,13 +141,25 @@ Coverage в `vitest.config.ts` нацелен на `app/features/**` и `server/
 
 ## Обновление зависимостей
 
-Массово по npm: [npm-check-updates](https://github.com/raineorshine/npm-check-updates):
+**Массово** (может поднять major-версии в `package.json`):
+[npm-check-updates](https://github.com/raineorshine/npm-check-updates):
 
 ```bash
 npx npm-check-updates -u
 npm install
 npm run ci
 ```
+
+**В рамках semver** — встроенный [`npm outdated`](https://docs.npmjs.com/cli/v11/commands/npm-outdated):
+
+```bash
+npm outdated
+npm update
+npm run ci
+```
+
+`npm update` подтягивает версии в пределах диапазонов из `package.json` (`^`, `~`). Для major или точной версии —
+вручную: `npm install <пакет>@latest`, затем снова `npm run ci`.
 
 ## Замечания
 
