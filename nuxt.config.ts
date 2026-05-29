@@ -36,7 +36,7 @@ export default defineNuxtConfig({
 	// Директория со store-файлами Pinia (авто-импорт defineStore)
 	pinia: { storesDirs: ["./app/stores"] },
 
-	// Глобальный CSS (подключается на каждой странице; токены, типографика, rich-html)
+	// Глобальный CSS (подключается на каждой странице)
 	css: ["~/assets/styles/main.css"],
 
 	// Не собирать Vue-файлы из app/pages/**/components/** в маршруты (только для повторного использования внутри страницы)

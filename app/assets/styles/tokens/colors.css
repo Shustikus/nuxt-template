@@ -1,3 +1,8 @@
-/* Цветовые токены — расширьте по мере появления дизайн-системы */
 :root {
+	--color-text: #111;
+	--color-bg: #fafafa;
+	--color-muted: #666;
+	--color-muted-bg: #eee;
+	--color-accent: #2563eb;
+	--color-border: #e5e5e5;
 }

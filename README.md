@@ -1,7 +1,9 @@
 # nuxt-template
 
-Стартовый репозиторий на **Nuxt 4** с TypeScript, Vitest, Storybook и ESLint/Prettier: единый CSS-бандл в Vite,
-`routeRules` из `app/config/routes.ts`, Storybook с алиасами `~/` и shim для `NuxtLink`.
+Минимальный стартовый репозиторий на **Nuxt 4** с TypeScript, ESLint/Prettier, Vitest, Storybook, MSW и CI.
+
+Не содержит дизайн-систему и бизнес-фичи — только инфраструктура, чтобы развернуть новый проект и нарастить код под
+задачу.
 
 ## Ветки
 
@@ -13,128 +15,150 @@
 Текущий документ описывает только **main**. Когда появятся облегчённые ветки, для каждой обновят README под свой набор
 инструментов.
 
+## Что внутри
+
+| Область       | Содержимое                                                                                 |
+| ------------- | ------------------------------------------------------------------------------------------ |
+| **Nuxt**      | SSR, `@nuxtjs/seo`, `@nuxt/icon`, `@pinia/nuxt`, `routeRules` из `app/config/routes.ts`    |
+| **Сборка**    | Единый CSS-бандл (`cssCodeSplit: false`), опциональный bundle analyzer (`npm run analyze`) |
+| **Качество**  | ESLint (Vue + TS), Prettier, Husky + lint-staged                                           |
+| **Тесты**     | Vitest: unit (jsdom + MSW), server, e2e, nuxt, storybook (Chromium)                        |
+| **Storybook** | Vue 3 + Vite, алиасы `~/` / `@`, shims для `NuxtLink` и `Icon`                             |
+| **Моки API**  | MSW в dev и в unit-тестах                                                                  |
+
 ## Требования
 
-- Node.js **20+** (рекомендуется LTS)
-- npm
+- **Node.js** `^22.12` или `^24.11` (как у Nuxt 4.4 в `package.json`; в CI — Node 24)
+- **npm**
 
-## Полезные ссылки
-
-- Шрифты: [google-webfonts-helper](https://gwfh.mranftl.com/fonts)
-- Иконки: [Icônes](https://icones.js.org/)
-- Nuxt документация: [nuxt.com/docs](https://nuxt.com/docs)
-- Vue документация: [vuejs.org/guide](https://vuejs.org/guide/introduction.html)
-- Vite документация: [vite.dev/guide](https://vite.dev/guide/)
-- Vitest документация: [vitest.dev/guide](https://vitest.dev/guide/)
-- Storybook для Vue 3:
-  [storybook.js.org/docs/get-started/frameworks/vue3-vite](https://storybook.js.org/docs/get-started/frameworks/vue3-vite)
-- ESLint правила и конфиг: [eslint.org/docs/latest](https://eslint.org/docs/latest/)
-- Prettier опции: [prettier.io/docs/en/options.html](https://prettier.io/docs/en/options.html)
-
-## Обновление версий в `package.json`
-
-Чтобы **переписать версии в самом `package.json`** по данным npm (массово), удобно
-**[npm-check-updates](https://github.com/raineorshine/npm-check-updates)** (`ncu`).
-
-1. **Установите утилиту глобально** (один раз на машину):
-
-   ```bash
-   npm install -g npm-check-updates
-   ```
-
-2. **В корне репозитория** обновите записи в `package.json` до актуальных версий из реестра:
-
-   ```bash
-   ncu -u
-   ```
-
-3. **Пересоберите lock и `node_modules`:**
-
-   ```bash
-   npm install
-   ```
-
-Без глобальной установки то же самое: `npx npm-check-updates -u`, затем `npm install`.
-
-**Точечно без `ncu`:** `npm outdated` — что отстаёт; `npm install имя@latest` или `npm install -D имя@версия` — npm сам
-меняет строку в `package.json` и lock для выбранных пакетов. Вручную отредактировать `package.json` и выполнить
-`npm install` тоже можно.
-
-**Про `npm update`:** обычно подтягивает установки в рамках уже указанных в манифесте диапазонов (`^` / `~`) и **не
-обязана** менять сами поля версий в `package.json`. Для массового поднятия записей в манифесте используйте **`ncu -u`**
-или **`npm install …@версия`**.
-
-После обновления зависимостей проверьте проект: `npm run typecheck`, `npm run test:run`, `npm run build`, при
-необходимости `npm run build-storybook`.
-
-## Установка и скрипты
+## Быстрый старт
 
 ```bash
 npm install
-cp .env.example .env   # при необходимости поправьте значения
+cp .env.example .env   # при необходимости
 npm run dev
 ```
 
-| Команда                                   | Назначение                                                 |
-| ----------------------------------------- | ---------------------------------------------------------- |
-| `npm run dev`                             | Режим разработки                                           |
-| `npm run build` / `npm run preview`       | Сборка и превью production                                 |
-| `npm start`                               | Запуск собранного приложения (`nuxt start`, после `build`) |
-| `npm run generate`                        | Статическая генерация (`nuxt generate`)                    |
-| `npm run test` / `npm run test:run`       | Vitest, проект **unit** (jsdom)                            |
-| `npm run test:coverage`                   | Unit-тесты с отчётом **@vitest/coverage-v8** в `coverage/` |
-| `npm run test:storybook`                  | Vitest, проект **storybook** (Chromium через Playwright)   |
-| `npm run storybook`                       | Storybook на порту 6006                                    |
-| `npm run build-storybook`                 | Статическая сборка Storybook в `storybook-static/`         |
-| `npm run lint` / `npm run lint:fix`       | ESLint                                                     |
-| `npm run typecheck`                       | Проверка типов (`vue-tsc`, см. `tsconfig.json`)            |
-| `npm run format` / `npm run format:check` | Prettier                                                   |
-| `npm run msw:init`                        | Сгенерировать `public/mockServiceWorker.js` для MSW        |
+Приложение: [http://localhost:3000](http://localhost:3000)  
+Storybook: `npm run storybook` → [http://localhost:6006](http://localhost:6006)
 
-После `npm install` один раз выполните `npm run msw:init` — без этого MSW в dev не поднимется. В dev API-запросы к
-замоканным маршрутам перехватывает MSW (см. раздел ниже).
+## Скрипты
+
+| Команда                                   | Назначение                                           |
+| ----------------------------------------- | ---------------------------------------------------- |
+| `npm run dev`                             | Режим разработки                                     |
+| `npm run build`                           | Production-сборка                                    |
+| `npm run preview`                         | Превью собранного приложения                         |
+| `npm start`                               | `nuxt start` (после `build`)                         |
+| `npm run generate`                        | Статическая генерация                                |
+| `npm run analyze`                         | Сборка с отчётом размера бандла                      |
+| `npm run lint` / `npm run lint:fix`       | ESLint                                               |
+| `npm run format` / `npm run format:check` | Prettier                                             |
+| `npm run typecheck`                       | `vue-tsc` (см. `tsconfig.json`)                      |
+| `npm run test`                            | Vitest, проект **unit** (watch)                      |
+| `npm run test:unit:run`                   | Unit-тесты один прогон                               |
+| `npm run test:coverage`                   | Unit + server с coverage                             |
+| `npm run test:ci`                         | Как в CI: unit + server, MSW strict, coverage        |
+| `npm run test:e2e`                        | E2E smoke (нужен запущенный dev или `NUXT_E2E_HOST`) |
+| `npm run test:e2e:install`                | Установка Chromium для Playwright                    |
+| `npm run test:storybook`                  | Тесты сторис в браузере                              |
+| `npm run storybook`                       | Storybook dev                                        |
+| `npm run build-storybook`                 | Статика в `storybook-static/`                        |
+| `npm run ci`                              | lint + typecheck + test:ci                           |
+| `npm run ci:e2e`                          | Playwright + e2e против localhost:3000               |
+| `npm run check`                           | lint + typecheck + test:coverage                     |
 
 ## Переменные окружения
 
-Nuxt подставляет значения из `.env` в `runtimeConfig` (см. `nuxt.config.ts`).
+Шаблон ключей — [`.env.example`](./.env.example). Файл `.env` в git не коммитится.
 
-- **Публичные** (видны на клиенте): префикс `NUXT_PUBLIC_`, ключи в `camelCase` после префикса.  
-  Пример: `NUXT_PUBLIC_SITE_URL` → `useRuntimeConfig().public.siteUrl`.
-- **Серверные только**: префикс `NUXT_` без `PUBLIC_`.  
-  Пример: `NUXT_API_SECRET` → `useRuntimeConfig().apiSecret` (только на сервере).
+Nuxt мапит переменные в `runtimeConfig` ([`nuxt.config.ts`](./nuxt.config.ts)):
 
-Шаблон ключей лежит в [`.env.example`](./.env.example). Файл `.env` в git не коммитится (см. `.gitignore`).
+| Переменная             | `runtimeConfig`  | Где доступна    |
+| ---------------------- | ---------------- | --------------- |
+| `NUXT_PUBLIC_SITE_URL` | `public.siteUrl` | клиент и сервер |
+| `NUXT_PUBLIC_API_BASE` | `public.apiBase` | клиент и сервер |
+| `NUXT_API_SECRET`      | `apiSecret`      | только сервер   |
 
-## Структура репозитория
+Публичные ключи: префикс `NUXT_PUBLIC_`, в коде — camelCase после префикса.
 
-Сейчас в дереве:
+## Структура
 
-- `app/` — корневое приложение: [`app.vue`](./app/app.vue), [`pages/`](./app/pages/), [`layouts/`](./app/layouts/),
-  [`config/routes.ts`](./app/config/routes.ts) (источник для `routeRules`: `meta.renderMode` — `ssr` | `ssg` | `spa`),
-  [`assets/styles/`](./app/assets/styles/) (`main.css`, токены в `styles/tokens/`), [`docs/`](./app/docs/) (MDX intro,
-  `*.stories.ts` для Storybook).
-- [`.storybook/`](./.storybook/) — конфиг Storybook, preview, shims (в т.ч. `NuxtLink`).
-- [`tests/`](./tests/) — unit-тесты Vitest (проект **unit**), setup MSW.
-- [`mocks/`](./mocks/) — MSW: `handlers.ts`, `browser.ts`, `server.ts`.
+```
+app/
+  app.vue
+  pages/              # file-based routes
+  layouts/
+  components/         # .gitkeep — добавьте UI по мере роста
+  config/routes.ts    # meta.renderMode → routeRules (ssr | ssg | spa)
+  assets/styles/      # main.css + базовые CSS-переменные в tokens/
+  docs/               # Storybook: MDX, *.stories.ts
+  plugins/msw.client.ts
+mocks/                # MSW handlers (пример: GET /api/health)
+server/               # Nitro: api/, middleware/ (.gitkeep)
+.storybook/           # конфиг, preview, shims
+tests/                # unit, e2e, setup MSW
+.github/workflows/    # CI
+```
 
-Автоимпорт компонентов настроен на `~/components` в [`nuxt.config.ts`](./nuxt.config.ts); каталога `app/components/`
-пока нет — создайте его при появлении общих Vue-компонентов (сторис удобно класть рядом с компонентом или в
-`app/docs/`).
+Автоимпорт компонентов: `~/components` без префикса папки ([`nuxt.config.ts`](./nuxt.config.ts)).
 
-Опционально под ваш проект: Nitro [`server/api`](https://nuxt.com/docs/guide/directory-structure/server).
+**Маршруты:** по умолчанию Nuxt строит их из `app/pages/`. Файл [`app/config/routes.ts`](./app/config/routes.ts) задаёт
+только `routeRules` (SSR/SSG/SPA). Управляемый роутинг через `router.options` в шаблон не входит — добавьте сами, если
+нужны URL из конфига.
 
-## API-моки (MSW)
+## MSW
 
-В **dev** MSW подключается автоматически (`app/plugins/msw.client.ts`). Обработчики —
-[`mocks/handlers.ts`](./mocks/handlers.ts); в **Vitest** (unit) — [`tests/setup.ts`](./tests/setup.ts). В CI
-`npm run test:ci` включает строгий режим MSW (`VITEST_MSW_UNHANDLED=error`).
+- **Dev:** плагин [`app/plugins/msw.client.ts`](./app/plugins/msw.client.ts) поднимает worker; необработанные запросы —
+  `bypass`.
+- **Unit-тесты:** [`tests/setup.ts`](./tests/setup.ts) + [`mocks/server.ts`](./mocks/server.ts).
+- **Обработчики:** [`mocks/handlers.ts`](./mocks/handlers.ts) — сейчас заглушка `GET /api/health`.
+- **CI:** `test:ci` выставляет `VITEST_MSW_UNHANDLED=error`.
 
-Конфиг Prettier: [`.prettierrc`](./.prettierrc).
+## CI
 
-## Замечания по сборке
+Workflow [`.github/workflows/ci.yml`](./.github/workflows/ci.yml):
 
-- **`nuxt typecheck`** иногда падает с `spawn npx ENOENT`, если у дочернего процесса нет `npx` в `PATH`. Для CI и
-  локальной проверки используйте **`npm run typecheck`** (`vue-tsc --noEmit`, см. `tsconfig.json`).
-- У **`build-storybook`** на этапе manager Vite может вывести предупреждение
-  **`unable to find package.json for @nuxt/icon`**. Это связано с тем, как бандлер обходит Nuxt-модуль вне полного
-  Nuxt-контекста; на результат сборки обычно не влияет. В preview `@nuxt/icon` добавлен в `optimizeDeps.include`.
+1. lint, typecheck, unit + server (coverage)
+2. gitleaks
+3. Storybook tests + `build-storybook`
+4. e2e smoke (dev-сервер на порту 3000)
+
+Локально перед push: `npm run ci`. E2E отдельно: поднять `npm run dev`, затем `npm run ci:e2e`.
+
+## Vitest: проекты
+
+| Проект      | Каталог                              | Назначение                      |
+| ----------- | ------------------------------------ | ------------------------------- |
+| `unit`      | `tests/**` (кроме server, e2e, nuxt) | jsdom, MSW setup                |
+| `server`    | `tests/server/**`                    | Nitro handlers (пока пусто)     |
+| `e2e`       | `tests/e2e/**`                       | Playwright + `@nuxt/test-utils` |
+| `nuxt`      | `tests/nuxt/**`                      | Nuxt environment (пока пусто)   |
+| `storybook` | сторис из `app/`                     | браузер Chromium                |
+
+Coverage в `vitest.config.ts` нацелен на `app/features/**` и `server/api/**` — пороги сработают, когда появится доменный
+код.
+
+## Обновление зависимостей
+
+Массово по npm: [npm-check-updates](https://github.com/raineorshine/npm-check-updates):
+
+```bash
+npx npm-check-updates -u
+npm install
+npm run ci
+```
+
+## Замечания
+
+- Для typecheck используйте **`npm run typecheck`**, не `nuxt typecheck` (в части окружений падает с
+  `spawn npx ENOENT`).
+- При **`build-storybook`** возможно предупреждение `unable to find package.json for @nuxt/icon` — на артефакт обычно не
+  влияет; в [`.storybook/main.ts`](./.storybook/main.ts) модуль в `optimizeDeps.include`.
+- Prettier: [`.prettierrc.json`](./.prettierrc.json).
+
+## Ссылки
+
+- [Nuxt](https://nuxt.com/docs) · [Vue](https://vuejs.org/guide/introduction.html) · [Vitest](https://vitest.dev/guide/)
+- [Storybook Vue 3 + Vite](https://storybook.js.org/docs/get-started/frameworks/vue3-vite)
+- [MSW](https://mswjs.io/) · [Icônes](https://icones.js.org/)
