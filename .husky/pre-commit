@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+set -e
+
+# Коммит из GUI (Cursor/VS Code) часто идёт с урезанным PATH: нет nvm/fnm и node_modules/.bin.
+cd "$(git rev-parse --show-toplevel)" || exit 1
+
+if ! command -v node >/dev/null 2>&1; then
+  export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+  if [ -s "$NVM_DIR/nvm.sh" ]; then
+    # shellcheck disable=SC1090
+    . "$NVM_DIR/nvm.sh"
+  fi
+fi
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "husky (pre-commit): node не найден. Установите Node или подключите nvm/fnm в shell."
+  exit 1
+fi
+
+export PATH="$(pwd)/node_modules/.bin:$(dirname "$(command -v node)"):${PATH}"
+
+exec npx lint-staged

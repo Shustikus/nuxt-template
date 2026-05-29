@@ -20,6 +20,8 @@ export default [
 			"dist/**",
 			"storybook-static/**",
 			"coverage/**",
+			".vitest-localstorage.json",
+			".vitest-localstorage.json-*",
 			".cursor/**",
 		],
 	},

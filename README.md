@@ -26,7 +26,8 @@
 - Vue документация: [vuejs.org/guide](https://vuejs.org/guide/introduction.html)
 - Vite документация: [vite.dev/guide](https://vite.dev/guide/)
 - Vitest документация: [vitest.dev/guide](https://vitest.dev/guide/)
-- Storybook для Vue 3: [storybook.js.org/docs/get-started/frameworks/vue3-vite](https://storybook.js.org/docs/get-started/frameworks/vue3-vite)
+- Storybook для Vue 3:
+  [storybook.js.org/docs/get-started/frameworks/vue3-vite](https://storybook.js.org/docs/get-started/frameworks/vue3-vite)
 - ESLint правила и конфиг: [eslint.org/docs/latest](https://eslint.org/docs/latest/)
 - Prettier опции: [prettier.io/docs/en/options.html](https://prettier.io/docs/en/options.html)
 

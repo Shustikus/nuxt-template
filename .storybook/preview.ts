@@ -1,10 +1,13 @@
 import type { Preview } from "@storybook/vue3-vite";
 import { setup } from "@storybook/vue3";
 import { createMemoryHistory, createRouter } from "vue-router";
+import { StorybookIconShim } from "./shims/storybookIconShim";
 import { StorybookNuxtLinkShim } from "./shims/storybookNuxtLinkShim";
 import { theme } from "./theme";
 
 import "../app/assets/styles/main.css";
+
+declare const __STORYBOOK_A11Y_TEST_MODE__: "todo" | "error" | "off";
 
 setup((app) => {
 	/**
@@ -18,6 +21,7 @@ setup((app) => {
 
 	app.use(router);
 	app.component("NuxtLink", StorybookNuxtLinkShim);
+	app.component("Icon", StorybookIconShim);
 });
 
 /**
@@ -27,8 +31,8 @@ setup((app) => {
 const preview: Preview = {
 	parameters: {
 		a11y: {
-			// Нарушения помечаются как TODO в панели Tests, не блокируя локальную разработку.
-			test: "todo",
+			// Локально: TODO. В CI: можно включить error через STORYBOOK_A11Y_TEST_MODE=error.
+			test: __STORYBOOK_A11Y_TEST_MODE__,
 		},
 		docs: { theme },
 		controls: { matchers: { color: /(background|color)$/i, date: /Date$/i }, expanded: true },
