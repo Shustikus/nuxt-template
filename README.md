@@ -99,7 +99,7 @@ server/               # Nitro: api/, middleware/ (.gitkeep)
 .storybook/           # конфиг, preview, shims
 tests/                # unit, e2e, setup MSW
 .github/workflows/    # CI, publish (Docker → GHCR)
-Dockerfile, Dockerfile.storybook, compose.yaml
+Dockerfile, Dockerfile.storybook, docker-compose.yaml
 ```
 
 Автоимпорт компонентов: `~/components` без префикса папки ([`nuxt.config.ts`](./nuxt.config.ts)).
@@ -118,15 +118,20 @@ Dockerfile, Dockerfile.storybook, compose.yaml
 
 ## Docker
 
-Multi-stage [`Dockerfile`](./Dockerfile): `deps` → `build` → `production` (Nitro из `.output/server/index.mjs`). Для dev
-с hot-reload — target `development` и профиль `dev` в [`compose.yaml`](./compose.yaml).
+Multi-stage [`Dockerfile`](./Dockerfile): `deps` → `build` → `production` (Nitro из `.output/server/index.mjs`).
+Переменные сборки и runtime — в [`.env.example`](./.env.example) / `.env` и
+[`docker-compose.yaml`](./docker-compose.yaml), не в Dockerfile. Для dev с hot-reload — target `development` и профиль
+`dev`.
 
 ```bash
-# Production-образ
-docker build -t nuxt-template .
-docker run --rm -p 3000:3000 \
-  -e NUXT_PUBLIC_SITE_URL=http://localhost:3000 \
-  nuxt-template
+cp .env.example .env   # при необходимости
+
+# Production-образ (build-args обязательны)
+docker build -t nuxt-template \
+  --build-arg NUXT_PUBLIC_SITE_URL=http://localhost:3000 \
+  --build-arg NUXT_PUBLIC_API_BASE=/api \
+  .
+docker run --rm -p 3000:3000 --env-file .env nuxt-template
 
 # Через Compose (сервис web)
 docker compose up --build
