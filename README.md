@@ -98,7 +98,8 @@ mocks/                # MSW handlers (пример: GET /api/health)
 server/               # Nitro: api/, middleware/ (.gitkeep)
 .storybook/           # конфиг, preview, shims
 tests/                # unit, e2e, setup MSW
-.github/workflows/    # CI
+.github/workflows/    # CI, publish (Docker → GHCR)
+Dockerfile, Dockerfile.storybook, docker-compose.yaml
 ```
 
 Автоимпорт компонентов: `~/components` без префикса папки ([`nuxt.config.ts`](./nuxt.config.ts)).
@@ -115,6 +116,38 @@ tests/                # unit, e2e, setup MSW
 - **Обработчики:** [`mocks/handlers.ts`](./mocks/handlers.ts) — сейчас заглушка `GET /api/health`.
 - **CI:** `test:ci` выставляет `VITEST_MSW_UNHANDLED=error`.
 
+## Docker
+
+Multi-stage [`Dockerfile`](./Dockerfile): `deps` → `build` → `production` (Nitro из `.output/server/index.mjs`).
+Переменные сборки и runtime — в [`.env.example`](./.env.example) / `.env` и
+[`docker-compose.yaml`](./docker-compose.yaml), не в Dockerfile. Для dev с hot-reload — target `development` и профиль
+`dev`.
+
+```bash
+cp .env.example .env   # при необходимости
+
+# Production-образ (build-args обязательны)
+docker build -t nuxt-template \
+  --build-arg NUXT_PUBLIC_SITE_URL=http://localhost:3000 \
+  --build-arg NUXT_PUBLIC_API_BASE=/api \
+  .
+docker run --rm -p 3000:3000 --env-file .env nuxt-template
+
+# Через Compose (сервис web)
+docker compose up --build
+
+# Dev в контейнере (volume с исходниками)
+docker compose --profile dev up --build dev
+
+# Storybook — отдельный Dockerfile.storybook
+docker compose --profile storybook up --build storybook      # статика (nginx), :6006
+docker compose --profile storybook-dev up --build storybook-dev  # dev-сервер
+```
+
+Публикация **Nuxt**-образа в **GHCR** — [`.github/workflows/publish.yml`](./.github/workflows/publish.yml): после
+успешного CI на `main`, по тегам `v*` или вручную (`workflow_dispatch`). Образ: `ghcr.io/<owner>/<repo>:latest`.
+Опционально — repository variables `NUXT_PUBLIC_SITE_URL` и `NUXT_PUBLIC_API_BASE` для build-args.
+
 ## CI
 
 Workflow [`.github/workflows/ci.yml`](./.github/workflows/ci.yml):
@@ -123,6 +156,9 @@ Workflow [`.github/workflows/ci.yml`](./.github/workflows/ci.yml):
 2. gitleaks
 3. Storybook tests + `build-storybook`
 4. e2e smoke (dev-сервер на порту 3000)
+
+Workflow [`.github/workflows/publish.yml`](./.github/workflows/publish.yml): сборка production-образа и push в GitHub
+Container Registry.
 
 Локально перед push: `npm run ci`. E2E отдельно: поднять `npm run dev`, затем `npm run ci:e2e`.
 
