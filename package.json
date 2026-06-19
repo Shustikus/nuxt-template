@@ -49,8 +49,8 @@
 		"@storybook/vue3-vite": "10.4.2",
 		"@types/node": "^25.9.1",
 		"@vitejs/plugin-vue": "6.0.7",
-		"@vitest/browser-playwright": "4.1.8",
-		"@vitest/coverage-v8": "4.1.8",
+		"@vitest/browser-playwright": "4.1.9",
+		"@vitest/coverage-v8": "4.1.9",
 		"@vue/eslint-config-prettier": "10.2.0",
 		"@vue/eslint-config-typescript": "14.8.0",
 		"@vue/test-utils": "2.4.11",
@@ -65,7 +65,7 @@
 		"rollup-plugin-visualizer": "^7.0.1",
 		"storybook": "10.4.2",
 		"typescript": "6.0.3",
-		"vitest": "4.1.8",
+		"vitest": "4.1.9",
 		"vue-tsc": "3.3.4"
 	},
 	"msw": {
