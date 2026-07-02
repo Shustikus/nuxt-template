@@ -17,8 +17,8 @@
 
 ## Требования
 
-- **Node.js** `^22.12` или `^24.11` (в CI и Docker — Node 24)
-- **npm**
+- **Node.js** `^22.12` или `^24.11` (в CI и Docker — Node 24; см. [`.nvmrc`](./.nvmrc))
+- **npm** `>=10`
 
 ## Что внутри
 
@@ -56,6 +56,8 @@ Storybook: `npm run storybook` → [http://localhost:6006](http://localhost:6006
 - Конфиг: [`app/config/api.ts`](./app/config/api.ts) — `buildApiUrl`, `resolveBackendOrigin`
 - Сервер: [`server/utils/proxyBackendGet.ts`](./server/utils/proxyBackendGet.ts),
   [`server/utils/proxyBackendPost.ts`](./server/utils/proxyBackendPost.ts) — прокси на бэкенд с fallback в Vitest
+- Секреты: [`server/utils/resolveRuntimeConfigString.ts`](./server/utils/resolveRuntimeConfigString.ts) —
+  `runtimeConfig` + fallback на `process.env` для server utils
 
 ### Глобальные ошибки
 
@@ -128,10 +130,10 @@ app/features/<feature>/
 
 ### Служебные (lifecycle)
 
-| Команда       | Когда                                                 |
-| ------------- | ----------------------------------------------------- |
-| `postinstall` | После `npm install` — `nuxt prepare` (типы, `.nuxt/`) |
-| `prepare`     | После install — установка Husky (pre-commit hooks)    |
+| Команда       | Когда                                                                                      |
+| ------------- | ------------------------------------------------------------------------------------------ |
+| `postinstall` | После `npm install` — `nuxt prepare` + `msw init public` (генерация worker, не коммитится) |
+| `prepare`     | После install — установка Husky (pre-commit hooks)                                         |
 
 ### Docker Compose
 
@@ -162,7 +164,7 @@ app/
   config/routes.ts      # URL, meta, renderMode → routeRules
   config/api.ts         # HTTP/proxy conventions
   utils/apiFetch.ts     # HTTP-клиент
-  shared/               # cross-cutting utils, composables
+  shared/               # app/shared — cross-cutting utils, composables
   pages/                # file-based route names
   composables/          # shared composables
   middleware/           # route middleware
@@ -173,7 +175,7 @@ app/
 server/
   api/                  # Nitro handlers
   middleware/           # Nitro middleware
-  utils/                # proxyBackendGet, proxyBackendPost, resolveRuntimeConfigString
+  utils/                # getServerFetch, proxyBackend*, resolveRuntimeConfigString
 mocks/                  # MSW (dev + Vitest)
 tests/                  # unit, server, e2e, nuxt
 ```
@@ -182,15 +184,20 @@ tests/                  # unit, server, e2e, nuxt
 
 - **Dev:** [`app/plugins/msw.client.ts`](./app/plugins/msw.client.ts) + [`mocks/handlers.ts`](./mocks/handlers.ts) —
   моки API, пока нет бэкенда
+- **Worker:** `public/mockServiceWorker.js` генерируется в `postinstall` (`msw init public`), в git не попадает (см.
+  [`.gitignore`](./.gitignore))
 - **Production:** реальные запросы к Nitro или бэкенду (MSW не подключается)
 - **Unit-тесты:** [`tests/setup.ts`](./tests/setup.ts) + те же handlers через `mocks/server.ts`
 - **CI:** `VITEST_MSW_UNHANDLED=error`
 
+Покрытие тестами: 100% на infra-слое (`app/config`, `app/utils`, `server/utils`) — см.
+[`vitest.config.ts`](./vitest.config.ts).
+
 ## Docker и CI
 
 Multi-stage [`Dockerfile`](./Dockerfile), [`docker-compose.yaml`](./docker-compose.yaml).  
-CI: [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) — lint, typecheck, `npm audit`, coverage, gitleaks,
-storybook, e2e.
+CI: [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) — lint, typecheck, `npm audit`, coverage (100% infra),
+gitleaks, storybook, docker build, e2e.
 
 Локально: `npm run ci`.
 

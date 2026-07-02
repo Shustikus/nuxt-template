@@ -1,17 +1,12 @@
-import { $fetch as ofetch } from "ofetch";
 import { buildBackendApiUrl } from "~/config/api";
 import { isVitest } from "~/utils/isVitest";
-import { asUntypedFetch } from "~/utils/untypedFetch";
+import { getServerFetch } from "./getServerFetch";
 
 interface ProxyBackendPostOptions<TBody, TResponse> {
 	path: string;
 	body: TBody;
 	mock: TResponse | ((body: TBody) => TResponse);
 	errorMessage: string;
-}
-
-function getServerFetch() {
-	return asUntypedFetch((globalThis as { $fetch?: unknown }).$fetch ?? ofetch);
 }
 
 /** Проксирует POST на бэкенд; в Vitest при ошибке возвращает mock. */

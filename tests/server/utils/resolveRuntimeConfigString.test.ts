@@ -41,4 +41,19 @@ describe("resolveRuntimeConfigString", () => {
 		const { resolveRuntimeConfigString } = await import("../../../server/utils/resolveRuntimeConfigString");
 		expect(resolveRuntimeConfigString("testKey", envKey)).toBe("env-only");
 	});
+
+	it("skips env lookup when envKey is empty", async () => {
+		stubUseRuntimeConfig({});
+		process.env[envKey] = "ignored";
+
+		const { resolveRuntimeConfigString } = await import("../../../server/utils/resolveRuntimeConfigString");
+		expect(resolveRuntimeConfigString("testKey", "", "default")).toBe("default");
+	});
+
+	it("ignores non-string runtimeConfig values", async () => {
+		stubUseRuntimeConfig({ testKey: 42 });
+
+		const { resolveRuntimeConfigString } = await import("../../../server/utils/resolveRuntimeConfigString");
+		expect(resolveRuntimeConfigString("testKey", envKey, "default")).toBe("default");
+	});
 });

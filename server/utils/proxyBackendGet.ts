@@ -1,16 +1,11 @@
-import { $fetch as ofetch } from "ofetch";
 import { buildBackendApiUrl } from "~/config/api";
 import { isVitest } from "~/utils/isVitest";
-import { asUntypedFetch } from "~/utils/untypedFetch";
+import { getServerFetch } from "./getServerFetch";
 
 interface ProxyBackendGetOptions<T> {
 	path: string;
 	mock: T;
 	errorMessage: string;
-}
-
-function getServerFetch() {
-	return asUntypedFetch((globalThis as { $fetch?: unknown }).$fetch ?? ofetch);
 }
 
 /** Проксирует GET на бэкенд; в Vitest при ошибке возвращает mock. */

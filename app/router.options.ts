@@ -38,6 +38,8 @@ export default <RouterConfig>{
 
 		collectRoutes(_routes);
 
+		// Вложенные file-based маршруты (parent/child.vue) здесь не поддерживаются —
+		// для вложенности добавьте отдельные записи в routes.ts на каждый leaf-page.
 		return routesConfig.map((entry) => {
 			const base = componentMap.get(entry.page);
 

@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { stubCreateError } from "../h3TestStubs";
 
+vi.mock("ofetch", () => ({ $fetch: vi.fn().mockResolvedValue({ via: "ofetch" }) }));
+
 describe("proxyBackendPost", () => {
 	beforeEach(() => {
 		vi.resetModules();
@@ -58,5 +60,34 @@ describe("proxyBackendPost", () => {
 		expect(result).toEqual({ ok: true, id: 42 });
 
 		process.env.VITEST = originalVitest;
+	});
+
+	it("throws createError outside Vitest when backend fails", async () => {
+		vi.stubGlobal("$fetch", vi.fn().mockRejectedValue(new Error("network")));
+
+		const originalVitest = process.env.VITEST;
+		delete process.env.VITEST;
+
+		const { proxyBackendPost } = await import("../../../server/utils/proxyBackendPost");
+
+		await expect(
+			proxyBackendPost({ path: "/test", body: { id: 1 }, mock: { ok: false }, errorMessage: "backend unavailable" })
+		).rejects.toMatchObject({ statusCode: 502, message: "backend unavailable" });
+
+		process.env.VITEST = originalVitest;
+	});
+
+	it("uses ofetch when global $fetch is unavailable", async () => {
+		delete (globalThis as { $fetch?: unknown }).$fetch;
+
+		const { proxyBackendPost } = await import("../../../server/utils/proxyBackendPost");
+		const result = await proxyBackendPost({
+			path: "/test",
+			body: { id: 1 },
+			mock: { ok: false },
+			errorMessage: "fail",
+		});
+
+		expect(result).toEqual({ via: "ofetch" });
 	});
 });

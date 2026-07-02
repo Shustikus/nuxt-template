@@ -3,16 +3,16 @@
  *
  * Запускает MSW-сервер перед всеми тестами, сбрасывает обработчики
  * после каждого теста и останавливает сервер при завершении.
- * Это позволяет тестам использовать реальные HTTP-запросы (Axios),
+ * Это позволяет тестам использовать реальные HTTP-запросы через `$fetch`,
  * которые перехватываются MSW-моками.
  */
 import { beforeAll, afterEach, afterAll } from "vitest";
-import type { SetupServerApi } from "msw/node";
+import type { SetupServer } from "msw/node";
 
 const onUnhandledRequest = process.env.VITEST_MSW_UNHANDLED === "error" ? "error" : "bypass";
 
 // Запускаем MSW-сервер; по умолчанию bypass (локально), в CI можно включить error
-let server: SetupServerApi;
+let server: SetupServer;
 
 beforeAll(async () => {
 	// MSW в Node пытается persist cookies в localStorage, если она доступна глобально.

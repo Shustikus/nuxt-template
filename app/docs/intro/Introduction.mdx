@@ -11,8 +11,9 @@ import { Meta } from "@storybook/addon-docs/blocks";
 Инфраструктура без UI kit и бизнес-фич — только архитектурные паттерны:
 
 - **Managed routing** — `app/router.options.ts` + `app/config/routes.ts`
-- **HTTP** — `app/utils/apiFetch.ts`, `app/config/api.ts`, Nitro-прокси в `server/utils/`
-- **MSW** — `mocks/handlers.ts` + `app/plugins/msw.client.ts` в dev, `tests/setup.ts` в unit-тестах
+- **HTTP** — `app/utils/apiFetch.ts`, `app/config/api.ts`, Nitro-прокси и `resolveRuntimeConfigString` в `server/utils/`
+- **MSW** — `mocks/handlers.ts` + `app/plugins/msw.client.ts` в dev (worker из `postinstall`), `tests/setup.ts` в
+  unit-тестах
 - **Ошибки** — `app/error.vue` (глобальная страница с `useSeoMeta`)
 - **Фичи** — добавляйте в `app/features/<name>/` (components, services, dto, mappers, …)
 
