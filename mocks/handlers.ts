@@ -1,7 +1,7 @@
-import { http, HttpResponse, type RequestHandler } from "msw";
+import type { RequestHandler } from "msw";
 
 /**
- * MSW-обработчики для dev и Vitest.
- * Добавляйте маршруты по мере появления `server/api/*` и сервисов.
+ * MSW-обработчики API для Vitest и dev (браузер).
+ * См. `tests/setup.ts`, `app/plugins/msw.client.ts`.
  */
-export const handlers: RequestHandler[] = [http.get("/api/health", () => HttpResponse.json({ ok: true }))];
+export const handlers: RequestHandler[] = [];

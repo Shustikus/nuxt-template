@@ -7,17 +7,17 @@ type IconSet = {
 	height?: number;
 };
 
-const typedCiIconSet = iconSet as IconSet;
+const typedMdiIconSet = iconSet as IconSet;
 export const StorybookIconShim = defineComponent({
 	name: "StorybookIconShim",
 	props: { name: { type: String, required: true }, size: { type: [String, Number], default: "1em" } },
 	setup(props, { attrs }) {
 		const parsedIcon = computed(() => {
 			if (props.name.startsWith("mdi:")) {
-				return { iconSet: typedCiIconSet, token: props.name.slice(3) };
+				return { iconSet: typedMdiIconSet, token: props.name.slice(4) };
 			}
 
-			return { iconSet: typedCiIconSet, token: props.name };
+			return { iconSet: typedMdiIconSet, token: props.name };
 		});
 		const body = computed(() => parsedIcon.value.iconSet.icons[parsedIcon.value.token]?.body ?? "");
 		const viewBox = computed(() => {

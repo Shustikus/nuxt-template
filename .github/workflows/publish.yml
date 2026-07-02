@@ -60,6 +60,5 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             NUXT_PUBLIC_SITE_URL=${{ vars.NUXT_PUBLIC_SITE_URL || 'https://example.com' }}
-            NUXT_PUBLIC_API_BASE=${{ vars.NUXT_PUBLIC_API_BASE || '/api' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

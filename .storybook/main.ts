@@ -48,13 +48,13 @@ const config: StorybookConfig = {
 		]);
 
 		return mergeConfig(config, {
+			build: { cssMinify: "esbuild" },
 			plugins: [vue()],
 			resolve: { alias },
 			define: { __STORYBOOK_A11Y_TEST_MODE__: JSON.stringify(process.env.STORYBOOK_A11Y_TEST_MODE ?? "todo") },
 			// После «optimized dependencies changed. reloading» браузер иногда запрашивает
 			// уже удалённый чанк в sb-vite/deps (syntaxhighlighter-*). Ранний include стабилизирует скан deps.
 			optimizeDeps: { ...config.optimizeDeps, include: [...include] },
-			build: { ...config.build, chunkSizeWarningLimit: 1600 },
 		});
 	},
 };

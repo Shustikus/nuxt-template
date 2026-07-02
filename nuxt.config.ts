@@ -1,14 +1,10 @@
 import { defineNuxtConfig } from "nuxt/config";
 import routesConfig from "./app/config/routes";
+import { PRODUCTION_SITE_URL } from "./app/config/api";
 import { visualizer } from "rollup-plugin-visualizer";
 
-/**
- * Канонический URL сайта без завершающего слэша.
- *
- * Важно: `@nuxtjs/seo` (nuxt-site-config) валидирует url и ругается на localhost даже в dev.
- * Поэтому дефолт — «безопасный» домен, а для локальной разработки URL задаётся через env.
- */
-const siteUrl = process.env.NUXT_PUBLIC_SITE_URL ?? "https://example.com";
+/** Канонический URL для SEO при сборке (NUXT_PUBLIC_SITE_URL — опционально, для staging). */
+const siteUrl = process.env.NUXT_PUBLIC_SITE_URL ?? PRODUCTION_SITE_URL;
 
 /** Fallback для <title> и og:title, если страница не задала свой title */
 const defaultSiteTitle = "Nuxt template";
@@ -28,9 +24,9 @@ export default defineNuxtConfig({
 	// Подключённые Nuxt-модули
 	modules: [
 		"@pinia/nuxt", // Стейт-менеджер Pinia с авто-импортом
-		"@nuxt/icon", // Иконки через Iconify (<Icon name="ci:…" />)
+		"@nuxt/icon", // Иконки через Iconify (<Icon name="mdi:…" />)
 		"@nuxtjs/seo", // SEO: robots, og-image, schema-org, link-checker, site-config
-		"@nuxt/test-utils/module", // Хелперы для Vitest (@nuxt/test-utils)
+		...(isTest ? (["@nuxt/test-utils/module"] as const) : []), // Хелперы для Vitest (@nuxt/test-utils)
 	],
 
 	// Директория со store-файлами Pinia (авто-импорт defineStore)
@@ -52,8 +48,9 @@ export default defineNuxtConfig({
 			// из родительских SFC (где задают классы дочерним компонентам) могут подключаться
 			// чуть позже первого paint и давать заметный «перещёлк» (FOUC).
 			cssCodeSplit: false,
-			// Порог предупреждения о размере чанка (КБ); каталог тянет крупные зависимости
-			chunkSizeWarningLimit: 1500,
+			// Порог предупреждения о размере чанка (КБ). Текущий максимум — ~305 КБ;
+			// 400 даёт запас над ним, но ловит регрессии (раздувание чанка зависимостями).
+			chunkSizeWarningLimit: 400,
 			// Без polyfill: вставка vite/modulepreload-polyfill ломает sourcemap (WARN от Vite при билде)
 			modulePreload: { polyfill: false },
 		},
@@ -76,7 +73,7 @@ export default defineNuxtConfig({
 			 * Страницы, задавшие title через useSeoMeta, получают шаблон ниже.
 			 */
 			title: defaultSiteTitle,
-			// Шаблон заголовка для страниц: «Каталог» → «Каталог — Олдис»
+			// Шаблон заголовка для страниц: «Каталог» → «Каталог — Nuxt template»
 			titleTemplate: "%s — Nuxt template",
 			htmlAttrs: { lang: "ru" },
 			charset: "utf-8",
@@ -104,7 +101,7 @@ export default defineNuxtConfig({
 	// Глобальные SEO-настройки сайта (модуль nuxt-site-config, часть @nuxtjs/seo)
 	site: {
 		url: siteUrl, // Канонический URL (canonical, og:url, robots)
-		name: "", // Название сайта для мета-тегов и schema.org
+		name: "Nuxt template", // Название сайта для мета-тегов и schema.org
 		description: defaultSiteDescription, // Дефолтный description
 		defaultLocale: "ru", // Локаль по умолчанию
 		indexable: true, // Разрешить индексацию — @nuxtjs/seo проставит robots: index,follow
@@ -129,8 +126,6 @@ export default defineNuxtConfig({
 				userAgent: "*",
 				// Публичная часть сайта открыта для индексации
 				allow: ["/"],
-				// Служебные разделы без SEO-ценности (корзина, избранное, сравнение)
-				disallow: ["/basket", "/favourites", "/compare"],
 			},
 		],
 	},
@@ -165,6 +160,14 @@ export default defineNuxtConfig({
 		minify: true, // Минификация серверного бандла — уменьшает .output/server
 	},
 
+	// SSG-маршруты заданы явно через routeRules (buildRouteRules); обход ссылок не нужен
+	// и при crawlLinks: true NuxtLink prefetch на каждой странице раздувает число _payload.json.
+	hooks: {
+		"nitro:config"(nitroConfig) {
+			nitroConfig.prerender = { ...nitroConfig.prerender, crawlLinks: false };
+		},
+	},
+
 	// Настройки TypeScript
 	typescript: {
 		strict: true, // Строгий режим (рекомендуется для всего app/)
@@ -179,13 +182,13 @@ export default defineNuxtConfig({
 	 * Серверные ключи: NUXT_* (без PUBLIC). Публичные: NUXT_PUBLIC_*.
 	 */
 	runtimeConfig: {
-		/** приватный пример: NUXT_API_SECRET */
-		apiSecret: "",
+		// --- Только сервер (не попадают в клиентский бандл) ---
+		/** Опционально: переопределить auto-origin (dev → Nuxt template, prod → origin запроса). */
+		apiBaseUrl: "", // NUXT_API_BASE_URL
+
+		// --- Публичные (доступны на клиенте и сервере) ---
 		public: {
-			/** NUXT_PUBLIC_SITE_URL */
-			siteUrl,
-			/** NUXT_PUBLIC_API_BASE */
-			apiBase: "/api",
+			siteUrl, // NUXT_PUBLIC_SITE_URL
 		},
 	},
 });
@@ -201,8 +204,13 @@ export default defineNuxtConfig({
  */
 function buildRouteRules() {
 	const rules: Record<string, object> = {};
+
+	// Долгое кэширование статических шрифтов из public/fonts/
+	rules["/fonts/**"] = { headers: { "cache-control": "public, max-age=31536000, immutable" } };
+
 	for (const route of routesConfig) {
 		const mode = (route.meta?.renderMode as string) ?? "ssr";
+
 		switch (mode) {
 			case "ssg":
 				rules[route.path] = { prerender: true };
@@ -210,9 +218,11 @@ function buildRouteRules() {
 			case "spa":
 				rules[route.path] = { ssr: false };
 				break;
+			case "ssr":
 			default:
 				break;
 		}
 	}
+
 	return rules;
 }

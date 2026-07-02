@@ -1,5 +1,6 @@
 import type { Preview } from "@storybook/vue3-vite";
 import { setup } from "@storybook/vue3";
+import { createPinia } from "pinia";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { StorybookIconShim } from "./shims/storybookIconShim";
 import { StorybookNuxtLinkShim } from "./shims/storybookNuxtLinkShim";
@@ -19,6 +20,7 @@ setup((app) => {
 		routes: [{ path: "/", name: "storybook-root", component: { template: "<div />" } }],
 	});
 
+	app.use(createPinia());
 	app.use(router);
 	app.component("NuxtLink", StorybookNuxtLinkShim);
 	app.component("Icon", StorybookIconShim);

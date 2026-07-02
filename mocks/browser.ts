@@ -2,7 +2,7 @@ import { setupWorker } from "msw/browser";
 import { handlers } from "./handlers";
 
 /**
- * MSW Service Worker для перехвата запросов в браузере.
- * Подключается через `app/plugins/msw.client.ts` только в dev-режиме.
+ * MSW worker для браузера.
+ * Подключается в dev через `app/plugins/msw.client.ts`.
  */
 export const worker = setupWorker(...handlers);
