@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   unit_server:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v6
 
@@ -36,7 +36,7 @@ jobs:
         run: npm run test:ci
 
   storybook:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v6
 
@@ -59,7 +59,7 @@ jobs:
         run: npm run build-storybook
 
   docker:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: unit_server
     steps:
       - uses: actions/checkout@v6
@@ -81,7 +81,7 @@ jobs:
             NUXT_PUBLIC_SITE_URL=https://example.com
 
   e2e:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: unit_server
     steps:
       - uses: actions/checkout@v6
