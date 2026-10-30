@@ -1,0 +1,204 @@
+/**
+ * @file rich-html.css
+ * @description Базовые стили для форматирования CMS/WYSIWYG-контента и `v-html`.
+ * Применяются через класс-обёртку `.rich-html` (или `.app-rich-html`).
+ */
+
+.rich-html,
+.app-rich-html {
+	color: var(--color-text, inherit);
+	font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
+	font-size: var(--font-size-base, 16px);
+	line-height: var(--line-height-base, 1.6);
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+}
+
+.rich-html > *:first-child,
+.app-rich-html > *:first-child {
+	margin-top: 0;
+}
+
+.rich-html > *:last-child,
+.app-rich-html > *:last-child {
+	margin-bottom: 0;
+}
+
+/* Заголовки */
+.rich-html :where(h1, h2, h3, h4, h5, h6),
+.app-rich-html :where(h1, h2, h3, h4, h5, h6) {
+	color: var(--color-heading, var(--color-text-primary, #111827));
+	font-weight: 700;
+	line-height: 1.25;
+}
+
+.rich-html h1,
+.app-rich-html h1 {
+	margin: 1.5em 0 0.6em;
+	font-size: 2em;
+}
+
+.rich-html h2,
+.app-rich-html h2 {
+	margin: 1.4em 0 0.5em;
+	font-size: 1.5em;
+}
+
+.rich-html h3,
+.app-rich-html h3 {
+	margin: 1.3em 0 0.5em;
+	font-size: 1.25em;
+}
+
+.rich-html h4,
+.rich-html h5,
+.rich-html h6,
+.app-rich-html h4,
+.app-rich-html h5,
+.app-rich-html h6 {
+	margin: 1.2em 0 0.5em;
+	font-size: 1.1em;
+}
+
+.rich-html :is(h1, h2, h3, h4, h5):has(+ :is(h1, h2, h3, h4, h5, h6)),
+.app-rich-html :is(h1, h2, h3, h4, h5):has(+ :is(h1, h2, h3, h4, h5, h6)) {
+	margin-bottom: 0.25em;
+}
+
+/* Параграфы */
+.rich-html p,
+.app-rich-html p {
+	margin: 0;
+}
+
+.rich-html p + p,
+.app-rich-html p + p {
+	margin-top: 0.75em;
+}
+
+/* Списки */
+.rich-html ul,
+.rich-html ol,
+.app-rich-html ul,
+.app-rich-html ol {
+	margin: 0.75em 0;
+	padding-left: 1.5em;
+}
+
+.rich-html li + li,
+.app-rich-html li + li {
+	margin-top: 0.35em;
+}
+
+.rich-html li > :is(ul, ol),
+.app-rich-html li > :is(ul, ol) {
+	margin: 0.35em 0;
+}
+
+/* Цитаты */
+.rich-html blockquote,
+.app-rich-html blockquote {
+	margin: 1em 0;
+	padding: 0.5em 1em;
+	border-left: 3px solid var(--color-border, #d1d5db);
+	color: var(--color-text-muted, #4b5563);
+	background: var(--color-bg-subtle, #f9fafb);
+	border-radius: 0 var(--radius-sm, 4px) var(--radius-sm, 4px) 0;
+}
+
+/* Медиа-элементы */
+.rich-html :is(img, video),
+.app-rich-html :is(img, video) {
+	display: block;
+	max-width: 100%;
+	height: auto;
+	margin: 1em 0;
+	border-radius: var(--radius-md, 8px);
+}
+
+/* Таблицы */
+.rich-html .rich-html__table-wrapper,
+.app-rich-html .rich-html__table-wrapper {
+	width: 100%;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+	margin: 1em 0;
+}
+
+.rich-html table,
+.app-rich-html table {
+	width: 100%;
+	margin: 1em 0;
+	border-collapse: collapse;
+	font-size: 0.9em;
+	text-align: left;
+}
+
+.rich-html th,
+.rich-html td,
+.app-rich-html th,
+.app-rich-html td {
+	padding: 0.6em 0.8em;
+	border: 1px solid var(--color-border, #e5e7eb);
+	vertical-align: top;
+}
+
+.rich-html th,
+.app-rich-html th {
+	font-weight: 600;
+	background: var(--color-bg-subtle, #f3f4f6);
+	color: var(--color-text-primary, #111827);
+}
+
+/* Ссылки */
+.rich-html a,
+.app-rich-html a {
+	color: var(--color-primary, #2563eb);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+	transition: color 0.15s ease;
+}
+
+.rich-html a:hover,
+.app-rich-html a:hover {
+	color: var(--color-primary-hover, #1d4ed8);
+}
+
+/* Разделители */
+.rich-html hr,
+.app-rich-html hr {
+	margin: 1.5em 0;
+	border: 0;
+	border-top: 1px solid var(--color-border, #e5e7eb);
+}
+
+/* Код */
+.rich-html code,
+.app-rich-html code {
+	font-family: var(--font-mono, ui-monospace, Menlo, monospace);
+	font-size: 0.875em;
+	padding: 0.15em 0.35em;
+	border-radius: var(--radius-sm, 4px);
+	background: var(--color-bg-subtle, #f3f4f6);
+	color: var(--color-text-primary, #111827);
+}
+
+.rich-html pre,
+.app-rich-html pre {
+	margin: 1em 0;
+	padding: 1em;
+	overflow-x: auto;
+	border-radius: var(--radius-md, 8px);
+	background: var(--color-code-bg, #1f2937);
+	color: var(--color-code-text, #f9fafb);
+	font-size: 0.875em;
+	line-height: 1.5;
+}
+
+.rich-html pre code,
+.app-rich-html pre code {
+	padding: 0;
+	background: transparent;
+	color: inherit;
+	border-radius: 0;
+}

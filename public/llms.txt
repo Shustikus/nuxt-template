@@ -1,0 +1,21 @@
+# Nuxt Template
+
+> [!NOTE]
+> Это шаблонный файл `llms.txt` для поисковых AI-систем и LLM-ассистентов (Perplexity, ChatGPT Search, Claude).
+> При разворачивании реального проекта актуализируйте название, описание и ссылки на ключевые разделы сайта.
+
+Nuxt Template — современный production-ready стартовый шаблон на Nuxt 3/4 для быстрой разработки веб-приложений.
+
+## Архитектура и стек
+
+- **Nuxt 4 / Vue 3**: Composition API, Script Setup, строгая типизация TypeScript.
+- **SEO & Social**: @nuxtjs/seo v6 (robots.txt, OpenGraph, Schema.org, site-config, link-checker, nuxt-ai-ready).
+- **Архитектура маршрутов**: Управляемый роутинг через `app/config/routes.ts` с поддержкой гибридного рендеринга (SSR, SSG, SPA), noindex-правил и контроля скролла.
+- **BFF (Backend For Frontend)**: Прокси-утилиты Nitro (`proxyBackendGet`, `proxyBackendPost`) с автоповторами при 502/503/504 кодах и передачей оригинального статуса/тела ошибок.
+- **Дизайн-система**: Базовая структура токенов в `app/assets/styles/tokens/` (цвета, отступы, радиусы, тени, типографика, фокус, сетка).
+- **Производительность**: Контроль бюджета бандла (`scripts/check-bundle-budget.mjs`), замер Web Vitals (`scripts/measure-web-vitals.mjs`), сжатие ответов (Brotli/gzip).
+- **Тестирование**: Vitest 5, Storybook + Playwright browser a11y, E2E smoke tests, MSW 3.
+
+## Основные разделы
+
+- [Главная страница](https://example.com/): Входная страница шаблона.

@@ -19,3 +19,13 @@ export function navigateTo(_to: unknown): Promise<void> {
 	void _to;
 	return Promise.resolve();
 }
+
+/** Заглушка Nuxt useHead для Storybook. */
+export function useHead(_input: unknown): void {
+	void _input;
+}
+
+/** Заглушка Nuxt useSeoMeta для Storybook. */
+export function useSeoMeta(_input: unknown): void {
+	void _input;
+}

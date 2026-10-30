@@ -1,0 +1,11 @@
+/**
+ * @file focus.css
+ * @description Токены фокуса и состояний доступности (focus ring).
+ *
+ * Пример:
+ *   --focus-ring-width: 2px;
+ *   --focus-ring-offset: 2px;
+ *   --focus-ring-color: #2563eb;
+ */
+:root {
+}

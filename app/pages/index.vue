@@ -8,5 +8,5 @@
 <script setup lang="ts">
 definePageMeta({ name: "index" });
 
-useSeoMeta({ title: "Главная" });
+useSeoMeta({ title: "Nuxt Template", description: "Starter template with production-ready architecture" });
 </script>

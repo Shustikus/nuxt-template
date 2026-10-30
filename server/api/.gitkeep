@@ -1,2 +1,6 @@
-# Nitro handlers (server/api/*.ts).
-# Пример: export default defineEventHandler(() => proxyBackendGet({ path: "/v1/items", mock: [], errorMessage: "…" }));
+# Серверные API-хендлеры Nitro (server/api/*.ts)
+#
+# Файлы в этой директории автоматически регистрируются как роуты с префиксом /api/.
+#
+# Пример использования proxyBackendGet:
+# export default defineEventHandler((event) => proxyBackendGet({ event, path: "/v1/items" }));

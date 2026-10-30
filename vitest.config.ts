@@ -4,17 +4,35 @@ import { resolve } from "node:path";
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import { playwright } from "@vitest/browser-playwright";
 import { defineVitestProject } from "@nuxt/test-utils/config";
-import { nuxtImportMetaShim } from "./tests/nuxtImportMetaShim";
+import { nuxtImportMetaShim } from "./tests/nuxtImportMetaShim.ts";
 
 // https://vitest.dev/config/
 export default defineConfig({
 	resolve: {
 		alias: {
-			"~": resolve(__dirname, "app"),
-			"@": resolve(__dirname, "app"),
-			"~~": resolve(__dirname),
-			"@@": resolve(__dirname),
+			"~": resolve(import.meta.dirname, "app"),
+			"@": resolve(import.meta.dirname, "app"),
+			"~~": resolve(import.meta.dirname),
+			"@@": resolve(import.meta.dirname),
 		},
+	},
+
+	// Vite 8 browser/Storybook: CJS-зависимости a11y/@testing-library нужно prebundle
+	optimizeDeps: {
+		include: [
+			"aria-query",
+			"dom-accessibility-api",
+			"lz-string",
+			"pretty-format",
+			"react-is",
+			"@testing-library/dom",
+			"@testing-library/jest-dom",
+			"@testing-library/dom > lz-string",
+			"@testing-library/dom > pretty-format",
+			"@testing-library/dom > aria-query",
+			"pretty-format > react-is",
+		],
+		needsInterop: ["aria-query", "lz-string", "pretty-format", "react-is"],
 	},
 
 	test: {
@@ -30,10 +48,10 @@ export default defineConfig({
 			// а не по всему Nuxt runtime-коду (composables/services/UI), который часто тестируется иначе.
 			include: [
 				"app/config/**/*.{ts,tsx}",
-				"app/utils/**/*.{ts,tsx}",
 				"app/features/**/utils/**/*.{ts,tsx}",
 				"app/features/**/config/**/*.{ts,tsx}",
-				"app/shared/**/utils/**/*.{ts,tsx}",
+				"app/shared/utils/**/*.{ts,tsx}",
+				"app/utils/**/*.{ts,tsx}",
 				"server/api/**/*.{ts,tsx}",
 				"server/utils/**/*.{ts,tsx}",
 			],
@@ -78,7 +96,9 @@ export default defineConfig({
 					name: "server",
 					sequence: { groupOrder: 1 },
 					environment: "node",
+					pool: "threads",
 					include: ["tests/server/**/*.{test,spec}.ts"],
+					setupFiles: ["./tests/server/setup.ts"],
 				},
 			},
 			{
@@ -108,6 +128,22 @@ export default defineConfig({
 						configDir: ".storybook",
 					}),
 				],
+				optimizeDeps: {
+					include: [
+						"aria-query",
+						"dom-accessibility-api",
+						"lz-string",
+						"pretty-format",
+						"react-is",
+						"@testing-library/dom",
+						"@testing-library/jest-dom",
+						"@testing-library/dom > lz-string",
+						"@testing-library/dom > pretty-format",
+						"@testing-library/dom > aria-query",
+						"pretty-format > react-is",
+					],
+					needsInterop: ["aria-query", "lz-string", "pretty-format", "react-is"],
+				},
 				test: {
 					name: "storybook",
 					browser: { enabled: true, headless: true, provider: playwright({}), instances: [{ browser: "chromium" }] },

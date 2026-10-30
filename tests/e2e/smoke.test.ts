@@ -15,6 +15,6 @@ describe("e2e smoke", async () => {
 	it("opens home page", async () => {
 		const page = await createPage("/");
 		const title = await page.title();
-		expect(title).toContain("Nuxt template");
+		expect(title).toMatch(/Nuxt template/i);
 	});
 });

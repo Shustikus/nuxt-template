@@ -8,6 +8,7 @@ type IconSet = {
 };
 
 const typedMdiIconSet = iconSet as IconSet;
+
 export const StorybookIconShim = defineComponent({
 	name: "StorybookIconShim",
 	props: { name: { type: String, required: true }, size: { type: [String, Number], default: "1em" } },

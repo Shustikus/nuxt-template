@@ -1,8 +1,16 @@
+/**
+ * @file colors.css
+ * @description Базовые токены цветов шаблона.
+ * Файл оставлен пустым для нового проекта — добавьте сюда палитру бренда.
+ *
+ * Пример:
+ *   --color-primary: #2563eb;
+ *   --color-primary-hover: #1d4ed8;
+ *   --color-text-primary: #111827;
+ *   --color-text-secondary: #4b5563;
+ *   --color-bg-primary: #ffffff;
+ *   --color-bg-subtle: #f9fafb;
+ *   --color-border: #e5e7eb;
+ */
 :root {
-	--color-text: #111;
-	--color-bg: #fafafa;
-	--color-muted: #666;
-	--color-muted-bg: #eee;
-	--color-accent: #2563eb;
-	--color-border: #e5e5e5;
 }

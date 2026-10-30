@@ -1,32 +1,25 @@
+import type { H3Event } from "h3";
 import { buildBackendApiUrl } from "~/config/api";
-import { isVitest } from "~/utils/isVitest";
-import { getServerFetch } from "./getServerFetch";
+import { forwardBackendError, getServerFetch, toProxyRequestBody } from "./proxyBackendShared";
 
-interface ProxyBackendPostOptions<TBody, TResponse> {
+interface ProxyBackendPostOptions<TBody> {
+	event: H3Event;
 	path: string;
 	body: TBody;
-	mock: TResponse | ((body: TBody) => TResponse);
-	errorMessage: string;
 }
 
-/** Проксирует POST на бэкенд; в Vitest при ошибке возвращает mock. */
+/** Проксирует POST и сохраняет backend error response без преобразований. */
 export async function proxyBackendPost<TBody, TResponse>({
+	event,
 	path,
 	body,
-	mock,
-	errorMessage,
-}: ProxyBackendPostOptions<TBody, TResponse>): Promise<TResponse> {
+}: ProxyBackendPostOptions<TBody>): Promise<TResponse> {
 	try {
-		return (await getServerFetch()(buildBackendApiUrl(path), { method: "POST", body })) as TResponse;
+		return (await getServerFetch()(buildBackendApiUrl(path), {
+			method: "POST",
+			body: toProxyRequestBody(body),
+		})) as TResponse;
 	} catch (error) {
-		if (isVitest()) {
-			if (typeof mock === "function") {
-				return (mock as (body: TBody) => TResponse)(body);
-			}
-
-			return mock;
-		}
-
-		throw createError({ statusCode: 502, message: errorMessage, cause: error });
+		return forwardBackendError(event, error);
 	}
 }

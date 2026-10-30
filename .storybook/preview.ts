@@ -8,6 +8,12 @@ import { theme } from "./theme";
 
 import "../app/assets/styles/main.css";
 
+// Nuxt авто-импортирует composables useHead/useSeoMeta глобально в компонентах.
+// В Storybook без Nuxt-рантайма регистрируем глобальные no-op заглушки.
+const g = globalThis as unknown as { useHead?: (input: unknown) => void; useSeoMeta?: (input: unknown) => void };
+g.useHead ??= () => {};
+g.useSeoMeta ??= () => {};
+
 declare const __STORYBOOK_A11Y_TEST_MODE__: "todo" | "error" | "off";
 
 setup((app) => {

@@ -9,7 +9,7 @@
 import { beforeAll, afterEach, afterAll } from "vitest";
 import type { SetupServer } from "msw/node";
 
-const onUnhandledRequest = process.env.VITEST_MSW_UNHANDLED === "error" ? "error" : "bypass";
+const onUnhandledFrame = process.env.VITEST_MSW_UNHANDLED === "error" ? "error" : "bypass";
 
 // Запускаем MSW-сервер; по умолчанию bypass (локально), в CI можно включить error
 let server: SetupServer;
@@ -27,7 +27,7 @@ beforeAll(async () => {
 
 	const serverModule = await import("../mocks/server");
 	server = serverModule.server;
-	server.listen({ onUnhandledRequest });
+	server.listen({ onUnhandledFrame });
 });
 
 // Сбрасываем обработчики после каждого теста (изоляция)

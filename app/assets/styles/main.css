@@ -3,6 +3,8 @@
 @import "./tokens/spacing.css";
 @import "./tokens/radius.css";
 @import "./tokens/shadow.css";
+@import "./tokens/focus.css";
+@import "./rich-html.css";
 
 * {
 	box-sizing: border-box;
@@ -12,20 +14,31 @@
 
 html {
 	height: 100%;
+	scrollbar-gutter: stable;
+}
+
+html.is-lock {
+	overflow: hidden;
 }
 
 body {
 	min-height: 100%;
-	font-family: var(--font-sans);
+	font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
 	line-height: 1.5;
-	color: var(--color-text);
-	background: var(--color-bg);
+	color: var(--color-text, inherit);
+	background: var(--color-bg, transparent);
+}
+
+body.is-lock {
+	overflow: hidden;
+	position: fixed;
+	width: 100%;
 }
 
 code {
-	font-family: ui-monospace, monospace;
+	font-family: var(--font-mono, ui-monospace, monospace);
 	font-size: 0.9em;
-	background: var(--color-muted-bg);
+	background: var(--color-muted-bg, #eee);
 	padding: 0.1em 0.35em;
-	border-radius: var(--radius-sm);
+	border-radius: var(--radius-sm, 4px);
 }

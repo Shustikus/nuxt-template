@@ -1,4 +1,16 @@
+/**
+ * @file typography.css
+ * @description Токены типографики шаблона (шрифты, размеры, насыщенность, интервалы).
+ * Настройте переменные под дизайн-макеты вашего проекта.
+ * Подробная инструкция по подключению локальных .woff2 шрифтов: docs/fonts.md
+ *
+ * Пример:
+ *   --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+ *   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+ *   --font-size-sm: 14px;
+ *   --font-size-base: 16px;
+ *   --font-size-lg: 18px;
+ *   --line-height-base: 1.5;
+ */
 :root {
-	--font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-	--font-mono: ui-monospace, monospace;
 }

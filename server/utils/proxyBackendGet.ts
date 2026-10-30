@@ -1,20 +1,20 @@
+import type { H3Event } from "h3";
 import { buildBackendApiUrl } from "~/config/api";
-import { isVitest } from "~/utils/isVitest";
-import { getServerFetch } from "./getServerFetch";
+import { forwardBackendError, getBackendRetryOptions, getServerFetch } from "./proxyBackendShared";
 
-interface ProxyBackendGetOptions<T> {
+interface ProxyBackendGetOptions {
+	event: H3Event;
 	path: string;
-	mock: T;
-	errorMessage: string;
 }
 
-/** Проксирует GET на бэкенд; в Vitest при ошибке возвращает mock. */
-export async function proxyBackendGet<T>({ path, mock, errorMessage }: ProxyBackendGetOptions<T>): Promise<T> {
+/** Проксирует GET и сохраняет backend error response без преобразований. */
+export async function proxyBackendGet<T>({ event, path }: ProxyBackendGetOptions): Promise<T> {
+	const retryOpts = getBackendRetryOptions(true);
 	try {
-		return (await getServerFetch()(buildBackendApiUrl(path))) as T;
+		return (await (retryOpts
+			? getServerFetch()(buildBackendApiUrl(path), retryOpts)
+			: getServerFetch()(buildBackendApiUrl(path)))) as T;
 	} catch (error) {
-		if (isVitest()) return mock;
-
-		throw createError({ statusCode: 502, message: errorMessage, cause: error });
+		return forwardBackendError(event, error);
 	}
 }

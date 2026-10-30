@@ -4,6 +4,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "nuxt build",
+		"build:css-split": "NUXT_CSS_CODE_SPLIT=1 nuxt build",
 		"analyze": "ANALYZE=1 nuxt build",
 		"start": "nuxt start",
 		"dev": "nuxt dev",
@@ -12,7 +13,7 @@
 		"preview:node": "NODE_ENV=production node --env-file-if-exists=.env .output/server/index.mjs",
 		"postinstall": "nuxt prepare && msw init public --save",
 		"prepare": "husky",
-		"typecheck": "nuxt prepare && vue-tsc -p .nuxt/tsconfig.json --noEmit",
+		"typecheck": "nuxt prepare && vue-tsc -p .nuxt/tsconfig.json --noEmit && vue-tsc -p tests/e2e/tsconfig.json --noEmit",
 		"test": "npm run test:unit",
 		"test:unit": "vitest --project unit",
 		"test:unit:run": "vitest run --project unit",
@@ -21,10 +22,13 @@
 		"test:e2e:install": "playwright install chromium",
 		"test:ci:install": "playwright install --with-deps chromium",
 		"test:storybook": "vitest run --project storybook",
+		"test:storybook:ci": "STORYBOOK_A11Y_TEST_MODE=error vitest run --project storybook",
 		"test:coverage": "vitest run --project unit --project server --coverage",
 		"test:ci": "VITEST_MSW_UNHANDLED=error vitest run --project unit --project server --coverage",
 		"storybook": "storybook dev -p 6006",
 		"build-storybook": "storybook build",
+		"check:bundle-budget": "node scripts/check-bundle-budget.mjs",
+		"check:performance": "npm run check:bundle-budget",
 		"format": "prettier --write .",
 		"format:check": "prettier --check .",
 		"lint": "eslint .",
@@ -34,55 +38,59 @@
 		"check": "npm run lint && npm run typecheck && npm run test:coverage"
 	},
 	"dependencies": {
-		"@nuxt/icon": "2.2.5",
-		"@nuxtjs/seo": "5.3.1",
-		"@pinia/nuxt": "0.11.3",
-		"pinia": "3.0.4",
-		"vue": "3.5.39",
-		"vue-router": "5.1.0"
+		"@nuxt/icon": "2.6.2",
+		"@nuxtjs/seo": "6.0.1",
+		"@pinia/nuxt": "1.0.3",
+		"pinia": "4.1.0",
+		"vue": "3.5.44",
+		"vue-router": "5.4.0"
 	},
 	"devDependencies": {
-		"@iconify-json/mdi": "^1.2.3",
-		"@nuxt/test-utils": "4.0.3",
-		"@takumi-rs/core": "^1.8.7",
-		"@storybook/addon-a11y": "^10.4.6",
-		"@storybook/addon-docs": "10.4.6",
-		"@storybook/addon-links": "10.4.6",
-		"@storybook/addon-vitest": "^10.4.6",
-		"@storybook/vue3": "10.4.6",
-		"@storybook/vue3-vite": "10.4.6",
-		"@types/node": "^26.1.0",
-		"@vitejs/plugin-vue": "6.0.7",
-		"@vitest/browser-playwright": "^4.1.9",
-		"@vitest/coverage-v8": "^4.1.9",
+		"@iconify-json/mdi": "1.2.3",
+		"@nuxt/test-utils": "4.3.4",
+		"@storybook/addon-a11y": "10.6.5",
+		"@storybook/addon-docs": "10.6.5",
+		"@storybook/addon-links": "10.6.5",
+		"@storybook/addon-vitest": "10.6.5",
+		"@storybook/vue3": "10.6.5",
+		"@storybook/vue3-vite": "10.6.5",
+		"@vitejs/plugin-vue": "6.0.10",
+		"@vitest/browser-playwright": "5.0.5",
+		"@vitest/coverage-v8": "5.0.5",
 		"@vue/eslint-config-prettier": "10.2.0",
 		"@vue/eslint-config-typescript": "14.9.0",
-		"@vue/test-utils": "2.4.11",
-		"eslint": "10.6.0",
-		"eslint-plugin-vue": "10.9.2",
-		"husky": "^9.1.7",
-		"jsdom": "29.1.1",
-		"lint-staged": "^17.0.8",
-		"msw": "2.14.6",
-		"nuxt": "^4.4.8",
-		"playwright": "^1.61.1",
-		"prettier": "3.9.4",
-		"rollup-plugin-visualizer": "^7.0.1",
-		"storybook": "10.4.6",
+		"@vue/test-utils": "2.5.1",
+		"eslint": "10.13.0",
+		"eslint-plugin-vue": "10.12.0",
+		"husky": "9.1.7",
+		"jsdom": "30.1.3",
+		"lint-staged": "17.6.0",
+		"msw": "3.0.3",
+		"nuxt": "4.6.3",
+		"playwright": "1.64.1",
+		"prettier": "3.9.10",
+		"rollup-plugin-visualizer": "7.1.1",
+		"storybook": "10.6.5",
 		"typescript": "6.0.3",
-		"vitest": "4.1.9",
-		"vue-tsc": "^3.3.6"
+		"vitest": "5.0.5",
+		"vue-tsc": "3.3.14"
 	},
 	"msw": {
 		"workerDirectory": [
 			"public"
 		]
 	},
-	"overrides": {
-		"@unhead/vue": "3.1.3"
-	},
+	"browserslist": [
+		"last 2 versions",
+		"> 1%",
+		"not dead",
+		"not op_mini all"
+	],
 	"engines": {
-		"node": "^22.12.0 || ^24.11.0",
+		"node": "^22.12.0 || ^24.x",
 		"npm": ">=10.0.0"
+	},
+	"overrides": {
+		"simple-git": "4.0.2"
 	}
 }

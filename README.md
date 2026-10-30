@@ -66,6 +66,8 @@ Storybook: `npm run storybook` → [http://localhost:6006](http://localhost:6006
 
 ### Фичи (добавляйте сами)
 
+Подробное руководство по структуре и правилам изоляции фичей: [`app/features/README.md`](./app/features/README.md).
+
 ```
 app/features/<feature>/
   components/
@@ -76,6 +78,13 @@ app/features/<feature>/
   types/
   index.ts          # публичный API фичи
 ```
+
+### Шрифты
+
+Руководство по подключению self-hosted шрифтов `.woff2`: [`docs/fonts.md`](./docs/fonts.md).  
+Шрифты скачиваются через [google-webfonts-helper](https://gwfh.mranftl.com/fonts), размещаются в `public/fonts/` (для
+них уже настроено годовое кэширование `immutable`), а правила `@font-face` подключаются в
+`app/assets/styles/tokens/typography.css`.
 
 ## Скрипты
 
@@ -175,7 +184,7 @@ app/
 server/
   api/                  # Nitro handlers
   middleware/           # Nitro middleware
-  utils/                # getServerFetch, proxyBackend*, resolveRuntimeConfigString
+  utils/                # proxyBackend*, resolveRuntimeConfigString, isLegacyBrowser
 mocks/                  # MSW (dev + Vitest)
 tests/                  # unit, server, e2e, nuxt
 ```
@@ -197,7 +206,7 @@ tests/                  # unit, server, e2e, nuxt
 
 Multi-stage [`Dockerfile`](./Dockerfile), [`docker-compose.yaml`](./docker-compose.yaml).  
 CI: [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) — lint, typecheck, `npm audit`, coverage (100% infra),
-gitleaks, storybook, docker build, e2e.
+storybook, docker build, e2e.
 
 Локально: `npm run ci`.
 

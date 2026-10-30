@@ -9,7 +9,7 @@ export default defineNuxtPlugin(async () => {
 	if (import.meta.dev) {
 		const { worker } = await import("../../mocks/browser");
 		await worker.start({
-			onUnhandledRequest: "bypass", // Не перехватывать запросы без обработчика
+			onUnhandledFrame: "bypass", // Не перехватывать запросы без обработчика
 		});
 	}
 });
