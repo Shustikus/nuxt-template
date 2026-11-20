@@ -38,7 +38,7 @@
 		"check": "npm run lint && npm run typecheck && npm run test:coverage"
 	},
 	"dependencies": {
-		"@nuxt/icon": "2.6.2",
+		"@nuxt/icon": "2.6.3",
 		"@nuxtjs/seo": "6.0.1",
 		"@pinia/nuxt": "1.0.3",
 		"pinia": "4.1.0",
@@ -47,7 +47,7 @@
 	},
 	"devDependencies": {
 		"@iconify-json/mdi": "1.2.3",
-		"@nuxt/test-utils": "4.3.4",
+		"@nuxt/test-utils": "4.4.0",
 		"@storybook/addon-a11y": "10.6.5",
 		"@storybook/addon-docs": "10.6.5",
 		"@storybook/addon-links": "10.6.5",
